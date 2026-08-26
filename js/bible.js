@@ -28,6 +28,19 @@
   var searchInput = document.getElementById("searchInput");
   var searchResults = document.getElementById("searchResults");
 
+  var fontDecreaseBtn = document.getElementById("fontDecreaseBtn");
+  var fontIncreaseBtn = document.getElementById("fontIncreaseBtn");
+  var fontResetBtn = document.getElementById("fontResetBtn");
+  var fontSizeLabel = document.getElementById("fontSizeLabel");
+  var fontSizeSlider = document.getElementById("fontSizeSlider");
+
+  var themeToggleBtn = document.getElementById("themeToggleBtn");
+  var chapterFavoriteBtn = document.getElementById("chapterFavoriteBtn");
+  var chapterShareBtn = document.getElementById("chapterShareBtn");
+  var toolbarMoreBtn = document.getElementById("toolbarMoreBtn");
+  var toolbarMoreMenu = document.getElementById("toolbarMoreMenu");
+  var copyChapterLinkBtn = document.getElementById("copyChapterLinkBtn");
+
   var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   /* ==========================================================
@@ -453,6 +466,7 @@
 
       renderChapter(slug, data, ch, verseNum);
       updateUrl(slug, ch, verseNum, opts.push);
+      refreshChapterFavoriteState();
     }).catch(function () {
       showError("This book could not be loaded. Check your connection and try again.", slug, chapterNum || 1);
     });
@@ -605,6 +619,266 @@
   }
 
   /* ==========================================================
+     Text size adjuster
+     ========================================================== */
+
+  var FONT_SCALE_KEY = "bibliaSacraFontScale";
+  var FONT_SCALE_MIN = 0.85;
+  var FONT_SCALE_MAX = 2.0;
+  var FONT_SCALE_STEP = 0.15;
+  var FONT_SCALE_STEPS = Math.round((FONT_SCALE_MAX - FONT_SCALE_MIN) / FONT_SCALE_STEP);
+
+  function clampFontScale(value) {
+    return Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, value));
+  }
+
+  function scaleToStepIndex(scale) {
+    return Math.round((clampFontScale(scale) - FONT_SCALE_MIN) / FONT_SCALE_STEP);
+  }
+
+  function applyFontScale(scale) {
+    scale = clampFontScale(scale);
+    var pct = Math.round(scale * 100);
+    document.documentElement.style.setProperty("--reader-font-scale", scale);
+    if (fontSizeLabel) {
+      fontSizeLabel.textContent = pct + "%";
+    }
+    if (fontDecreaseBtn) { fontDecreaseBtn.disabled = scale <= FONT_SCALE_MIN; }
+    if (fontIncreaseBtn) { fontIncreaseBtn.disabled = scale >= FONT_SCALE_MAX; }
+    if (fontSizeSlider) {
+      var stepIndex = scaleToStepIndex(scale);
+      fontSizeSlider.value = String(stepIndex);
+      fontSizeSlider.setAttribute("aria-valuetext", pct + "%");
+      fontSizeSlider.style.setProperty("--reader-font-pct", (stepIndex / FONT_SCALE_STEPS * 100) + "%");
+    }
+    try {
+      window.localStorage.setItem(FONT_SCALE_KEY, String(scale));
+    } catch (e) { /* storage unavailable, ignore */ }
+    return scale;
+  }
+
+  function getSavedFontScale() {
+    try {
+      var saved = parseFloat(window.localStorage.getItem(FONT_SCALE_KEY));
+      if (!isNaN(saved)) { return clampFontScale(saved); }
+    } catch (e) { /* storage unavailable, ignore */ }
+    return 1;
+  }
+
+  function initFontSizeControl() {
+    var currentScale = applyFontScale(getSavedFontScale());
+
+    if (fontIncreaseBtn) {
+      fontIncreaseBtn.addEventListener("click", function () {
+        currentScale = applyFontScale(currentScale + FONT_SCALE_STEP);
+      });
+    }
+    if (fontDecreaseBtn) {
+      fontDecreaseBtn.addEventListener("click", function () {
+        currentScale = applyFontScale(currentScale - FONT_SCALE_STEP);
+      });
+    }
+    if (fontResetBtn) {
+      fontResetBtn.addEventListener("click", function () {
+        currentScale = applyFontScale(1);
+        closeMoreMenu();
+        flashMenuItem(fontResetBtn, "Reset");
+      });
+    }
+    if (fontSizeSlider) {
+      fontSizeSlider.addEventListener("input", function () {
+        var index = parseInt(fontSizeSlider.value, 10) || 0;
+        currentScale = applyFontScale(FONT_SCALE_MIN + index * FONT_SCALE_STEP);
+      });
+    }
+  }
+
+  /* ==========================================================
+     Light / Dark reading mode
+     ========================================================== */
+
+  var READER_THEME_KEY = "bibliaSacraReaderTheme";
+
+  function getSavedReaderTheme() {
+    try {
+      return window.localStorage.getItem(READER_THEME_KEY) === "dark" ? "dark" : "light";
+    } catch (e) {
+      return "light";
+    }
+  }
+
+  function applyReaderTheme(theme) {
+    var isDark = theme === "dark";
+    if (isDark) {
+      document.documentElement.setAttribute("data-reader-theme", "dark");
+    } else {
+      document.documentElement.removeAttribute("data-reader-theme");
+    }
+    if (themeToggleBtn) {
+      themeToggleBtn.setAttribute("aria-pressed", String(isDark));
+      themeToggleBtn.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+    }
+    try {
+      window.localStorage.setItem(READER_THEME_KEY, isDark ? "dark" : "light");
+    } catch (e) { /* storage unavailable, ignore */ }
+  }
+
+  function initThemeToggle() {
+    applyReaderTheme(getSavedReaderTheme());
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener("click", function () {
+        var isDark = document.documentElement.getAttribute("data-reader-theme") === "dark";
+        applyReaderTheme(isDark ? "light" : "dark");
+      });
+    }
+  }
+
+  /* ==========================================================
+     Chapter favorites, share, and the "more" menu
+     ========================================================== */
+
+  var FAVORITES_KEY = "bibliaSacraChapterFavorites";
+
+  function getFavorites() {
+    try {
+      var raw = localStorage.getItem(FAVORITES_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveFavorites(list) {
+    try {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(list));
+    } catch (e) { /* storage unavailable — fail silently */ }
+  }
+
+  function favoriteId(slug, chapter) {
+    return slug + ":" + chapter;
+  }
+
+  function refreshChapterFavoriteState() {
+    if (!chapterFavoriteBtn) { return; }
+    var id = favoriteId(state.book, state.chapter);
+    var marked = getFavorites().some(function (f) { return f.id === id; });
+    chapterFavoriteBtn.classList.toggle("is-favorited", marked);
+    chapterFavoriteBtn.setAttribute("aria-pressed", String(marked));
+    chapterFavoriteBtn.innerHTML = '<span aria-hidden="true">' + (marked ? "&#9829;" : "&#9825;") + "</span>";
+    chapterFavoriteBtn.setAttribute(
+      "aria-label",
+      (marked ? "Remove " : "Add ") + "this chapter " + (marked ? "from" : "to") + " favorites"
+    );
+  }
+
+  function toggleChapterFavorite() {
+    var meta = BOOKS_BY_SLUG[state.book];
+    var id = favoriteId(state.book, state.chapter);
+    var list = getFavorites();
+    var idx = list.findIndex(function (f) { return f.id === id; });
+    if (idx > -1) {
+      list.splice(idx, 1);
+    } else {
+      list.push({
+        id: id,
+        book: state.book,
+        bookName: meta ? meta.name : state.book,
+        chapter: state.chapter,
+        savedAt: Date.now()
+      });
+    }
+    saveFavorites(list);
+    refreshChapterFavoriteState();
+  }
+
+  function currentChapterUrl() {
+    var url = new URL(window.location.href);
+    url.search = "";
+    url.searchParams.set("book", state.book);
+    url.searchParams.set("chapter", state.chapter);
+    return url;
+  }
+
+  function shareChapter() {
+    var meta = BOOKS_BY_SLUG[state.book];
+    var title = (meta ? meta.name : state.book) + " " + state.chapter + " — Biblia Sacra";
+    var url = currentChapterUrl().toString();
+
+    if (navigator.share) {
+      navigator.share({ title: title, url: url }).catch(function () {});
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () {
+        flashIconButton(chapterShareBtn, "&#10003;");
+      }).catch(function () {});
+    }
+  }
+
+  function copyChapterLink() {
+    var url = currentChapterUrl().toString();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () {
+        flashMenuItem(copyChapterLinkBtn, "Link copied");
+        closeMoreMenu();
+      }).catch(function () {});
+    }
+  }
+
+  function flashIconButton(btn, html) {
+    if (!btn) { return; }
+    var original = btn.innerHTML;
+    btn.innerHTML = '<span aria-hidden="true">' + html + "</span>";
+    setTimeout(function () { btn.innerHTML = original; }, 1400);
+  }
+
+  function flashMenuItem(btn, message) {
+    if (!btn) { return; }
+    var original = btn.textContent;
+    btn.textContent = message;
+    btn.classList.add("is-confirmed");
+    setTimeout(function () {
+      btn.textContent = original;
+      btn.classList.remove("is-confirmed");
+    }, 1400);
+  }
+
+  function openMoreMenu() {
+    if (!toolbarMoreMenu) { return; }
+    toolbarMoreMenu.hidden = false;
+    if (toolbarMoreBtn) { toolbarMoreBtn.setAttribute("aria-expanded", "true"); }
+  }
+
+  function closeMoreMenu() {
+    if (!toolbarMoreMenu) { return; }
+    toolbarMoreMenu.hidden = true;
+    if (toolbarMoreBtn) { toolbarMoreBtn.setAttribute("aria-expanded", "false"); }
+  }
+
+  function initToolbarExtras() {
+    if (chapterFavoriteBtn) {
+      chapterFavoriteBtn.addEventListener("click", toggleChapterFavorite);
+    }
+    if (chapterShareBtn) {
+      chapterShareBtn.addEventListener("click", shareChapter);
+    }
+    if (copyChapterLinkBtn) {
+      copyChapterLinkBtn.addEventListener("click", copyChapterLink);
+    }
+    if (toolbarMoreBtn) {
+      toolbarMoreBtn.addEventListener("click", function () {
+        if (toolbarMoreMenu && toolbarMoreMenu.hidden) { openMoreMenu(); } else { closeMoreMenu(); }
+      });
+    }
+    document.addEventListener("click", function (e) {
+      if (!toolbarMoreMenu || toolbarMoreMenu.hidden) { return; }
+      if (e.target.closest(".toolbar-more")) { return; }
+      closeMoreMenu();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { closeMoreMenu(); }
+    });
+  }
+
+  /* ==========================================================
      Init
      ========================================================== */
 
@@ -617,6 +891,9 @@
     if (!slug || !BOOKS_BY_SLUG[slug]) { slug = "genesis"; }
     if (!chapter || chapter < 1) { chapter = 1; }
 
+    initFontSizeControl();
+    initThemeToggle();
+    initToolbarExtras();
     populateBookSelect(BOOKS_BY_SLUG[slug].testament);
     goTo(slug, chapter, verse, { push: false });
   }

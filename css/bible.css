@@ -9,19 +9,73 @@ body.reader-body{
     radial-gradient(1100px 620px at 50% -12%, rgba(223,175,69,0.14), transparent 60%),
     linear-gradient(180deg, var(--sky) 0%, var(--cloud) 46%, var(--cloud) 100%);
   min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* ---------------- Reader top bar ---------------- */
+/* ---------------- Light / Dark reading mode ----------------
+   Scoped to the reader page only, via a data-reader-theme
+   attribute on <html> (set early, before paint, to avoid a
+   flash of the wrong theme — see the inline script in
+   bible.html — and kept in sync afterwards by js/bible.js). */
+
+html[data-reader-theme="dark"]{
+  --sky: #0B1826;
+  --white: #17293C;
+  --cloud: #101F2E;
+  --gold: #E8BE63;
+  --gold-soft: #3B2F18;
+  --deep-blue: #9DD1F2;
+  --soft-blue: #4B7EA0;
+  --text: #E9EEF3;
+  --text-soft: rgba(233,238,243,0.7);
+  --shadow-soft: 0 12px 40px rgba(0,0,0,0.5);
+  --shadow-hover: 0 18px 50px rgba(232,190,99,0.2);
+}
+
+html[data-reader-theme="dark"] *,
+html[data-reader-theme="dark"] *::before,
+html[data-reader-theme="dark"] *::after{
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+html[data-reader-theme="dark"] .reader-header{
+  background: linear-gradient(120deg, #081E33 0%, #123754 100%);
+}
+
+/* ---------------- Reader top bar (deep blue — trust, Scripture, calm) ---------------- */
 
 .reader-header{
   position: sticky;
   top: 0;
   z-index: 60;
-  background: rgba(255,255,255,0.86);
-  backdrop-filter: blur(14px) saturate(160%);
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
-  border-bottom: 1px solid rgba(223,175,69,0.22);
-  box-shadow: 0 8px 30px rgba(23,74,115,0.06);
+  background: linear-gradient(120deg, #0E3252 0%, #1B4E76 100%);
+  border-bottom: 1px solid rgba(223,175,69,0.3);
+  box-shadow: 0 8px 30px rgba(9,26,41,0.25);
+}
+
+.reader-header .reader-brand-name{ color: #FFFDF8; }
+.reader-header .reader-brand-tag{ color: var(--gold); }
+.reader-header .back-link{
+  background: rgba(255,253,248,0.12);
+  border-color: rgba(223,175,69,0.4);
+  color: #FFFDF8;
+  box-shadow: none;
+}
+.reader-header .back-link:hover,
+.reader-header .back-link:focus-visible{
+  background: var(--gold);
+  color: #123754;
+}
+.reader-header .search-toggle{
+  background: rgba(255,253,248,0.12);
+  border-color: rgba(223,175,69,0.4);
+  color: #FFFDF8;
+  box-shadow: none;
+}
+.reader-header .search-toggle:hover,
+.reader-header .search-toggle:focus-visible{
+  background: var(--gold);
+  color: #123754;
 }
 
 .reader-header-inner{
@@ -151,12 +205,198 @@ body.reader-body{
   .control-select{ flex: 1 1 auto; min-width: 0; }
 }
 
+/* ---------------- Reading toolbar ---------------- */
+
+.reading-toolbar{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+  background: var(--white);
+  border: 1px solid rgba(223,175,69,0.35);
+  border-radius: var(--radius-md);
+  padding: 6px 10px;
+  box-shadow: 0 6px 16px rgba(23,74,115,0.06);
+}
+
+.toolbar-divider{
+  width: 1px;
+  height: 26px;
+  flex-shrink: 0;
+  background: rgba(223,175,69,0.35);
+}
+
+.toolbar-icon-group{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ---- Text size adjuster ---- */
+
+.font-size-control{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 2px 2px 0;
+}
+
+.font-size-btn{
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1;
+  color: var(--deep-blue);
+  background: var(--cloud);
+  border: 1px solid rgba(223,175,69,0.3);
+  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.font-size-btn:hover{ background: rgba(223,175,69,0.18); }
+.font-size-btn:active{ transform: scale(0.95); }
+.font-size-btn:disabled{ opacity: 0.4; cursor: not-allowed; }
+
+.font-size-slider{
+  -webkit-appearance: none;
+  appearance: none;
+  width: 108px;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--gold) calc(var(--reader-font-pct, 50%)), rgba(223,175,69,0.25) calc(var(--reader-font-pct, 50%)), rgba(223,175,69,0.25) 100%);
+  cursor: pointer;
+}
+.font-size-slider::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--deep-blue);
+  border: 2px solid var(--white);
+  box-shadow: 0 2px 6px rgba(23,74,115,0.35);
+  cursor: pointer;
+  margin-top: -7px;
+}
+.font-size-slider::-moz-range-track{
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(223,175,69,0.25);
+}
+.font-size-slider::-moz-range-progress{
+  height: 4px;
+  border-radius: 999px;
+  background: var(--gold);
+}
+.font-size-slider::-moz-range-thumb{
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--deep-blue);
+  border: 2px solid var(--white);
+  box-shadow: 0 2px 6px rgba(23,74,115,0.35);
+  cursor: pointer;
+}
+.font-size-slider:focus-visible{ outline: 2px solid var(--gold); outline-offset: 3px; }
+
+.font-size-label{
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  min-width: 2.8em;
+  text-align: center;
+}
+
+/* ---- Icon buttons (theme / favorite / share / more) ---- */
+
+.toolbar-icon-btn{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  font-size: 1.08rem;
+  line-height: 1;
+  color: var(--deep-blue);
+  background: var(--cloud);
+  border: 1px solid rgba(223,175,69,0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+.toolbar-icon-btn:hover{ background: rgba(223,175,69,0.18); }
+.toolbar-icon-btn:active{ transform: scale(0.94); }
+
+/* Theme toggle: shows sun in light mode, moon in dark mode */
+.theme-toggle-btn .theme-icon{ display: none; }
+.theme-toggle-btn .icon-sun{ display: inline-block; color: var(--gold); }
+html[data-reader-theme="dark"] .theme-toggle-btn .icon-sun{ display: none; }
+html[data-reader-theme="dark"] .theme-toggle-btn .icon-moon{ display: inline-block; color: var(--gold); }
+
+#chapterFavoriteBtn.is-favorited{ background: var(--gold); border-color: var(--gold); color: var(--white); }
+
+/* ---- "More" dropdown ---- */
+
+.toolbar-more{ position: relative; }
+
+.toolbar-more-menu{
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  min-width: 190px;
+  background: var(--white);
+  border: 1px solid rgba(223,175,69,0.3);
+  border-radius: var(--radius-md);
+  box-shadow: 0 14px 34px rgba(23,74,115,0.18);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.toolbar-more-menu[hidden]{ display: none; }
+
+.toolbar-more-item{
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--deep-blue);
+  background: none;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  padding: 9px 10px;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+.toolbar-more-item:hover{ background: rgba(223,175,69,0.15); }
+.toolbar-more-item.is-confirmed{ color: var(--gold); }
+
+@media (max-width: 640px){
+  .reading-toolbar{ justify-content: center; }
+  .font-size-control,
+  .toolbar-icon-group{ flex: 1 1 auto; justify-content: center; }
+  .font-size-slider{ width: 84px; }
+}
+
 /* ---------------- Reading surface ---------------- */
 
 .reader-main{
   max-width: 1100px;
   margin: 0 auto;
   padding: 30px clamp(16px, 4vw, 32px) 80px;
+}
+
+:root{
+  --reader-font-scale: 1;
 }
 
 .reading-card{
@@ -212,7 +452,7 @@ body.reader-body{
   margin: 0 0 30px;
   font-family: var(--serif);
   font-style: italic;
-  font-size: 1.02rem;
+  font-size: calc(1.02rem * var(--reader-font-scale));
   line-height: 1.6;
   color: var(--text);
 }
@@ -265,7 +505,7 @@ body.reader-body{
   text-align: right;
   font-family: var(--sans);
   font-weight: 700;
-  font-size: 0.74rem;
+  font-size: calc(0.74rem * var(--reader-font-scale));
   color: var(--gold);
   padding-top: 0.45em;
 }
@@ -275,7 +515,7 @@ body.reader-body{
 
 .verse-text{
   font-family: var(--serif);
-  font-size: clamp(1.14rem, 1.6vw, 1.32rem);
+  font-size: calc(clamp(1.14rem, 1.6vw, 1.32rem) * var(--reader-font-scale));
   line-height: 1.75;
   color: var(--text);
 }

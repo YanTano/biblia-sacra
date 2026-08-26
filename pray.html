@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prayer — Biblia Sacra Cebu</title>
+<meta name="description" content="A quiet space to pray — a library of prayers and a personal prayer journal.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/pray.css">
+</head>
+<body class="reader-body pray-body">
+
+<div id="vantaBg" class="pray-vanta-bg" aria-hidden="true"></div>
+
+<a class="skip-link" href="#prayMain">Skip to Prayer</a>
+
+<header class="pray-header">
+  <div class="pray-header-inner">
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="praySidebar">
+      <span></span><span></span><span></span>
+    </button>
+
+    <a class="back-link" href="index.html">
+      <span class="back-arrow" aria-hidden="true">&#8592;</span>
+      <span class="back-label">Back to Homepage</span>
+    </a>
+
+    <div class="reader-brand">
+      <span class="reader-brand-name">Biblia Sacra</span>
+      <span class="reader-brand-tag">Prayer</span>
+    </div>
+
+    <div class="font-size-control" role="group" aria-label="Adjust text size">
+      <button class="font-size-btn" id="fontDecreaseBtn" type="button" aria-label="Decrease text size">A&#8722;</button>
+      <span class="font-size-label" id="fontSizeLabel">100%</span>
+      <button class="font-size-btn" id="fontIncreaseBtn" type="button" aria-label="Increase text size">A&#43;</button>
+      <button class="font-size-reset" id="fontResetBtn" type="button">Reset</button>
+    </div>
+  </div>
+</header>
+
+<div class="pray-shell">
+
+  <aside class="pray-sidebar" id="praySidebar">
+    <nav class="sidebar-nav" aria-label="Prayer sections">
+      <button class="sidebar-nav-item is-active" id="tabLibraryBtn" type="button" role="tab" aria-selected="true" aria-controls="libraryView">
+        <span class="sidebar-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 10c0-2 1.5-4 4-4s4 2 4 4M8 10c-2 0-3 3-1 5l5 6 5-6c2-2 1-5-1-5M8 10v3M16 10v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        Prayer Library
+      </button>
+      <button class="sidebar-nav-item" id="tabJournalBtn" type="button" role="tab" aria-selected="false" aria-controls="journalView">
+        <span class="sidebar-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="4" width="14" height="17" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M9 2.5v3M15 2.5v3M9 12h6M9 16h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </span>
+        My Journal
+      </button>
+    </nav>
+
+    <div class="sidebar-quote">
+      <span class="sidebar-quote-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M15 2v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M9 2v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </span>
+      <p class="sidebar-quote-text">&ldquo;Let prayer be your first choice, not your last resort.&rdquo;</p>
+      <span class="sidebar-quote-divider" aria-hidden="true"></span>
+      <cite>&mdash; St. Augustine</cite>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <main id="prayMain" class="pray-content">
+
+    <!-- ============ Prayer Library ============ -->
+    <section class="pray-view" id="libraryView" role="tabpanel" aria-labelledby="tabLibraryBtn">
+
+      <div class="intro-card">
+        <span class="intro-quote-mark" aria-hidden="true">&#8220;</span>
+        <p class="pray-intro">
+          Do not be anxious about anything, but in every situation,
+          by prayer and petition, with thanksgiving, present your requests to God.
+        </p>
+        <cite class="pray-intro-cite">Philippians 4:6</cite>
+        <button class="intro-heart" id="introHeart" type="button" aria-label="Save this verse" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20.5s-7.5-4.6-10-9.2C0.3 8 1.8 4.5 5.2 3.6c2.2-0.6 4.4 0.4 5.9 2.3l0.9 1.1 0.9-1.1c1.5-1.9 3.7-2.9 5.9-2.3 3.4 0.9 4.9 4.4 3.2 7.7-2.5 4.6-10 9.2-10 9.2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <!-- Category list -->
+      <div id="categoryListView" class="category-list"></div>
+
+      <!-- Category detail (hidden until a category is opened) -->
+      <div id="categoryDetailView" class="category-detail is-hidden">
+        <button class="detail-back" id="detailBackBtn" type="button">
+          <span aria-hidden="true">&#8592;</span> Back to Prayer Library
+        </button>
+        <h2 class="detail-title" id="detailTitle"></h2>
+        <p class="detail-subtitle" id="detailSubtitle"></p>
+        <div class="detail-prayers" id="detailPrayers"></div>
+      </div>
+
+    </section>
+
+    <!-- ============ Prayer Journal ============ -->
+    <section class="pray-view is-hidden" id="journalView" role="tabpanel" aria-labelledby="tabJournalBtn">
+      <div class="reading-card journal-form-card">
+        <h2 class="journal-heading">Write a Prayer</h2>
+        <p class="journal-subtext">Bring your heart before God. Only you can see what you write here.</p>
+
+        <form id="journalForm" class="journal-form">
+          <label class="journal-label" for="journalTitle">Title</label>
+          <input class="journal-input" type="text" id="journalTitle" placeholder="e.g. For my family's health" maxlength="80" required>
+
+          <label class="journal-label" for="journalCategory">Category</label>
+          <select class="journal-input" id="journalCategory">
+            <option value="Family">Family</option>
+            <option value="Health">Health</option>
+            <option value="Guidance">Guidance</option>
+            <option value="Thanksgiving">Thanksgiving</option>
+            <option value="Forgiveness">Forgiveness</option>
+            <option value="Other">Other</option>
+          </select>
+
+          <label class="journal-label" for="journalText">Your prayer</label>
+          <textarea class="journal-input journal-textarea" id="journalText" rows="4" placeholder="Lord, I lift up..." required></textarea>
+
+          <button class="journal-submit" type="submit">Add to Journal</button>
+        </form>
+      </div>
+
+      <div class="journal-list-header">
+        <h2 class="journal-heading">My Prayers</h2>
+        <div class="journal-filter" role="group" aria-label="Filter journal entries">
+          <button class="journal-filter-btn is-active" data-filter="all" type="button">All</button>
+          <button class="journal-filter-btn" data-filter="active" type="button">Praying</button>
+          <button class="journal-filter-btn" data-filter="answered" type="button">Answered</button>
+        </div>
+      </div>
+
+      <div id="journalList" class="journal-list"></div>
+      <p class="journal-empty" id="journalEmpty" hidden>No prayers here yet. Add one above.</p>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
+<script src="js/pray.js" defer></script>
+</body>
+</html>

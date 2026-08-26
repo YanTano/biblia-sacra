@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bible Reader — Biblia Sacra Cebu</title>
+<script>
+(function () {
+  try {
+    var saved = window.localStorage.getItem("bibliaSacraReaderTheme");
+    if (saved === "dark") {
+      document.documentElement.setAttribute("data-reader-theme", "dark");
+    }
+  } catch (e) { /* storage unavailable */ }
+})();
+</script>
 <meta name="description" content="Read the Holy Scripture verse by verse, at your own pace.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,6 +55,46 @@
   <select class="control-select" id="bookSelect" aria-label="Book"></select>
 
   <select class="control-select" id="chapterSelect" aria-label="Chapter"></select>
+
+  <div class="reading-toolbar" role="group" aria-label="Reading tools">
+
+    <div class="font-size-control" role="group" aria-label="Adjust text size">
+      <button class="font-size-btn" id="fontDecreaseBtn" type="button" aria-label="Decrease text size">A&#8722;</button>
+      <input class="font-size-slider" id="fontSizeSlider" type="range" min="0" max="8" step="1" value="1"
+             aria-label="Text size" aria-valuetext="100%">
+      <button class="font-size-btn" id="fontIncreaseBtn" type="button" aria-label="Increase text size">A&#43;</button>
+      <span class="font-size-label" id="fontSizeLabel">100%</span>
+    </div>
+
+    <div class="toolbar-icon-group">
+      <span class="toolbar-divider" aria-hidden="true"></span>
+
+      <button class="toolbar-icon-btn theme-toggle-btn" id="themeToggleBtn" type="button" aria-pressed="false" aria-label="Switch to dark mode">
+        <span class="theme-icon icon-sun" aria-hidden="true">&#9728;</span>
+        <span class="theme-icon icon-moon" aria-hidden="true">&#9790;</span>
+      </button>
+
+      <span class="toolbar-divider" aria-hidden="true"></span>
+
+      <button class="toolbar-icon-btn" id="chapterFavoriteBtn" type="button" aria-pressed="false" aria-label="Add this chapter to favorites">
+        <span aria-hidden="true">&#9825;</span>
+      </button>
+      <button class="toolbar-icon-btn" id="chapterShareBtn" type="button" aria-label="Share this chapter">
+        <span aria-hidden="true">&#8599;</span>
+      </button>
+
+      <div class="toolbar-more">
+        <button class="toolbar-icon-btn" id="toolbarMoreBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="More reading options">
+          <span aria-hidden="true">&#8943;</span>
+        </button>
+        <div class="toolbar-more-menu" id="toolbarMoreMenu" role="menu" hidden>
+          <button class="toolbar-more-item" id="fontResetBtn" type="button" role="menuitem">Reset text size</button>
+          <button class="toolbar-more-item" id="copyChapterLinkBtn" type="button" role="menuitem">Copy chapter link</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </nav>
 
 <main id="readerMain" class="reader-main">

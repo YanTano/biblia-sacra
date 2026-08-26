@@ -33,9 +33,10 @@
     <nav class="primary-nav" id="primaryNav" aria-label="Primary">
       <a href="#home" class="nav-link is-active">Home</a>
       <a href="#about" class="nav-link">About</a>
-      <a href="#bible" class="nav-link">Bible</a>
-      <a href="#devotionals" class="nav-link">Devotionals</a>
-      <a href="#gallery" class="nav-link">Gallery</a>
+      <a href="./bible.html" class="nav-link">Bible</a>
+      <a href="./devotion.html" class="nav-link">Devotion</a>
+      <a href="./pray.html" class="nav-link">Pray</a>
+      <a href="./gallery.html" class="nav-link">Gallery</a>
       <a href="#contact" class="nav-link">Contact</a>
     </nav>
 
@@ -74,19 +75,19 @@
 
       <div class="hero-actions" role="list">
         <a class="action-card" href="./bible.html" role="listitem">
-          <span class="action-icon" aria-hidden="true">&#128214;</span>
+          <img class="action-icon" src="assets/icons/read-bible.png" alt="" aria-hidden="true">
           <span class="action-label">Read Bible</span>
         </a>
-        <a class="action-card" href="#devotionals" role="listitem">
-          <span class="action-icon" aria-hidden="true">&#10084;</span>
-          <span class="action-label">Devotionals</span>
+        <a class="action-card" href="./devotion.html" role="listitem">
+          <img class="action-icon" src="assets/icons/devotional.png" alt="" aria-hidden="true">
+          <span class="action-label">Devotion</span>
         </a>
-        <a class="action-card" href="#pray" role="listitem">
-          <span class="action-icon" aria-hidden="true">&#128591;</span>
+        <a class="action-card" href="./pray.html" role="listitem">
+          <img class="action-icon" src="assets/icons/pray.png" alt="" aria-hidden="true">
           <span class="action-label">Pray</span>
         </a>
-        <a class="action-card" href="#gallery" role="listitem">
-          <span class="action-icon" aria-hidden="true">&#128444;</span>
+        <a class="action-card" href="./gallery.html" role="listitem">
+          <img class="action-icon" src="assets/icons/gallery.png" alt="" aria-hidden="true">
           <span class="action-label">Gallery</span>
         </a>
       </div>
@@ -109,23 +110,23 @@
     </div>
   </section>
 
-  <section class="section section-strip" id="bible" aria-label="Bible, Devotionals, Pray">
+  <section class="section section-strip" id="bible" aria-label="Bible, Devotion, Pray">
     <div class="section-inner strip-grid">
       <a class="strip-card" href="bible.html">
-        <span class="strip-icon" aria-hidden="true">&#128214;</span>
+        <img class="strip-icon" src="assets/icons/read-bible.png" alt="" aria-hidden="true">
         <h3>Bible</h3>
         <p>Read the scriptures at your own pace, verse by verse.</p>
       </a>
-      <article class="strip-card" id="devotionals">
-        <span class="strip-icon" aria-hidden="true">&#10084;</span>
-        <h3>Devotionals</h3>
+      <a class="strip-card" href="./devotion.html" id="devotion">
+        <img class="strip-icon" src="assets/icons/devotional.png" alt="" aria-hidden="true">
+        <h3>Devotion</h3>
         <p>Short daily reflections to carry with you through the day.</p>
-      </article>
-      <article class="strip-card" id="pray">
-        <span class="strip-icon" aria-hidden="true">&#128591;</span>
+      </a>
+      <a class="strip-card" href="./pray.html" id="pray">
+        <img class="strip-icon" src="assets/icons/pray.png" alt="" aria-hidden="true">
         <h3>Pray</h3>
         <p>A quiet space to bring your heart before God.</p>
-      </article>
+      </a>
     </div>
   </section>
 
@@ -133,7 +134,23 @@
     <div class="section-inner">
       <p class="section-eyebrow">Gallery</p>
       <h2 class="section-title">Moments of light</h2>
-      <p class="section-text">A small gallery is on its way — heavenly art, scripture cards, and more.</p>
+      <p class="section-text">Heavenly art, scripture cards, and glimpses of our community — worship, fellowship, and the everyday grace of walking in faith together.</p>
+    </div>
+
+    <div class="gallery-slider" id="homeGallerySlider" aria-roledescription="carousel" aria-label="Gallery preview">
+      <div class="gallery-slider-main">
+        <button class="slider-arrow slider-arrow-prev" id="sliderPrev" type="button" aria-label="Previous image">&#8249;</button>
+
+        <div class="gallery-slider-viewport" id="sliderViewport"></div>
+
+        <button class="slider-arrow slider-arrow-next" id="sliderNext" type="button" aria-label="Next image">&#8250;</button>
+      </div>
+
+      <div class="gallery-slider-thumbs" id="sliderThumbs" role="tablist" aria-label="Choose an image"></div>
+    </div>
+
+    <div class="gallery-cta">
+      <a class="btn-gold" href="./gallery.html">View Full Gallery</a>
     </div>
   </section>
 
@@ -153,6 +170,8 @@
   <p>&copy; 2026 Biblia Sacra Cebu. Made with love, for His glory.</p>
 </footer>
 
+<script src="js/gallery-data.js"></script>
+<script src="js/home-gallery.js" defer></script>
 <script src="js/main.js" defer></script>
 </body>
 </html>

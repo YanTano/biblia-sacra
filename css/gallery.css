@@ -1,0 +1,304 @@
+/* ==========================================================
+   Biblia Sacra — Gallery
+   ========================================================== */
+
+/* ---------------- Header ---------------- */
+
+.reader-header{
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border-bottom: 1px solid rgba(223,175,69,0.22);
+  box-shadow: 0 8px 30px rgba(23,74,115,0.06);
+}
+
+.reader-header-inner{
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 14px clamp(16px, 3vw, 28px);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.back-link{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--deep-blue);
+  padding: 10px 16px 10px 12px;
+  border-radius: 999px;
+  background: var(--white);
+  border: 1px solid rgba(223,175,69,0.35);
+  box-shadow: 0 6px 16px rgba(23,74,115,0.08);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+.back-link:hover, .back-link:focus-visible{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(223,175,69,0.28);
+  background: var(--gold-soft);
+}
+
+.reader-brand{ text-align: center; line-height: 1.1; }
+.reader-brand-name{
+  display: block;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: var(--deep-blue);
+}
+.reader-brand-tag{
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+@media (max-width: 640px){
+  .back-link span.back-label{ display: none; }
+  .back-link{ padding: 10px 12px; }
+  .reader-brand-name{ font-size: 1.1rem; }
+}
+
+.header-spacer{ width: 1px; }
+
+body.gallery-body{ background: var(--cloud); }
+
+/* ---------------- Hero (Vanta clouds) ---------------- */
+
+.gallery-hero{
+  position: relative;
+  height: min(52vh, 460px);
+  min-height: 320px;
+  overflow: hidden;
+}
+
+.gallery-hero-bg{
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #7fa9c4 0%, #b9cfdc 100%);
+}
+
+.gallery-hero-content{
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.gallery-hero-icon{
+  display: inline-flex;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 14px;
+  filter: drop-shadow(0 8px 18px rgba(23,74,115,0.25));
+}
+.gallery-hero-icon img{ width: 100%; height: 100%; object-fit: contain; }
+
+.gallery-hero-content h1{
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  color: var(--deep-blue);
+  margin: 0;
+  text-shadow: 0 2px 22px rgba(255,255,255,0.6);
+}
+
+.gallery-hero-content p{
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  margin: 10px 0 0;
+}
+
+/* ---------------- Main content ---------------- */
+
+.gallery-main{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 44px clamp(16px, 3vw, 28px) 90px;
+}
+
+.gallery-intro{
+  max-width: 640px;
+  margin: 0 auto 30px;
+  text-align: center;
+}
+.gallery-intro p{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 0;
+}
+
+.gallery-filter{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+.gallery-filter-btn{
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.84rem;
+  color: var(--text-soft);
+  background: var(--white);
+  border: 1px solid rgba(223,175,69,0.32);
+  border-radius: 999px;
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.gallery-filter-btn:hover{ transform: translateY(-1px); background: rgba(223,175,69,0.12); }
+.gallery-filter-btn.is-active{ background: var(--deep-blue); color: var(--white); border-color: var(--deep-blue); }
+
+/* ---------------- Masonry grid ---------------- */
+
+.gallery-grid{
+  column-count: 3;
+  column-gap: 18px;
+}
+@media (max-width: 900px){ .gallery-grid{ column-count: 2; } }
+@media (max-width: 540px){ .gallery-grid{ column-count: 1; } }
+
+.gallery-item{
+  break-inside: avoid;
+  margin-bottom: 18px;
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  background: var(--white);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+.gallery-item:hover{
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+.gallery-item.is-hidden{ display: none; }
+
+.gallery-item img{
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.gallery-item-caption{
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 30px 14px 12px;
+  background: linear-gradient(180deg, transparent, rgba(15,35,55,0.72));
+  color: var(--white);
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.gallery-item:hover .gallery-item-caption{ opacity: 1; transform: translateY(0); }
+
+/* ---------------- Lightbox ---------------- */
+
+.lightbox{
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 24, 38, 0.92);
+  padding: 40px;
+}
+.lightbox.is-open{ display: flex; }
+
+.lightbox-figure{
+  max-width: min(900px, 92vw);
+  max-height: 86vh;
+  margin: 0;
+  text-align: center;
+}
+.lightbox-figure img{
+  max-width: 100%;
+  max-height: 76vh;
+  border-radius: 12px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+.lightbox-figure figcaption{
+  color: var(--white);
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  margin-top: 16px;
+  opacity: 0.85;
+}
+
+.lightbox-close{
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  font-size: 2.2rem;
+  line-height: 1;
+  color: var(--white);
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.85;
+}
+.lightbox-close:hover{ opacity: 1; }
+
+.lightbox-nav{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: var(--white);
+  font-size: 1.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+.lightbox-nav:hover{ background: rgba(255,255,255,0.22); }
+.lightbox-prev{ left: 20px; }
+.lightbox-next{ right: 20px; }
+
+@media (max-width: 640px){
+  .lightbox{ padding: 16px; }
+  .lightbox-nav{ width: 42px; height: 42px; font-size: 1.4rem; }
+  .lightbox-prev{ left: 8px; }
+  .lightbox-next{ right: 8px; }
+  .lightbox-close{ top: 12px; right: 14px; font-size: 1.8rem; }
+}

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblia Sacra — Daily Devotion</title>
+<meta name="description" content="Daily Bible devotion with Scripture, reflection, prayer, and practical application.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/devotion.css">
+</head>
+<body>
+
+<a class="skip-link" href="#devotionMain">Skip to content</a>
+
+<header class="site-header site-header--devotion" id="siteHeader">
+  <div class="header-inner">
+    <a class="brand" href="index.html#home" aria-label="Biblia Sacra Cebu, home">
+      <span class="brand-cross" aria-hidden="true">&#10013;</span>
+      <span class="brand-text">
+        <span class="brand-name">Biblia Sacra</span>
+        <span class="brand-city">CEBU</span>
+      </span>
+    </a>
+
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="primary-nav" id="primaryNav" aria-label="Primary">
+      <a href="index.html#home" class="nav-link">Home</a>
+      <a href="index.html#about" class="nav-link">About</a>
+      <a href="bible.html" class="nav-link">Bible</a>
+      <a href="devotion.html" class="nav-link is-active" aria-current="page">Devotion</a>
+      <a href="pray.html" class="nav-link">Pray</a>
+      <a href="gallery.html" class="nav-link">Gallery</a>
+      <a href="index.html#contact" class="nav-link">Contact</a>
+    </nav>
+
+    <a class="daily-verse-pill" href="pray.html">
+      Prayer <span aria-hidden="true">&#128591;</span>
+    </a>
+  </div>
+</header>
+
+<main id="devotionMain" class="devotion-main">
+
+  <!-- ============ Hero ============ -->
+  <section class="devotion-hero" aria-label="Daily Devotion">
+    <div class="devotion-hero-ornament" aria-hidden="true">&#10013;</div>
+    <span class="devotion-hero-label">Daily Devotion</span>
+    <div class="devotion-hero-date-row">
+      <time class="devotion-hero-date" id="devotionDate"></time>
+      <span class="info-tooltip" tabindex="0" data-tooltip="Updates every day at 12:00 AM Philippine Time" aria-label="Info: Updates every day at 12:00 AM Philippine Time">
+        <span class="info-tooltip-icon" aria-hidden="true">&#9432;</span>
+      </span>
+    </div>
+    <h1 class="devotion-hero-title" id="devotionTitle">&nbsp;</h1>
+    <p class="devotion-hero-subtitle">A quiet moment with Scripture to steady your heart for the day ahead.</p>
+  </section>
+
+  <div class="devotion-container">
+
+    <!-- ============ Toolbar: user actions (matches bible.html reading-toolbar) ============ -->
+    <div class="devotion-toolbar" role="toolbar" aria-label="Devotion actions">
+
+      <div class="font-size-control" role="group" aria-label="Adjust text size">
+        <button class="font-size-btn" id="fontDecreaseBtn" type="button" aria-label="Decrease text size" title="Decrease text size">A&minus;</button>
+        <input class="font-size-slider" id="fontSizeSlider" type="range" min="0" max="4" step="1" value="2"
+               aria-label="Text size" aria-valuetext="Default text size">
+        <button class="font-size-btn" id="fontIncreaseBtn" type="button" aria-label="Increase text size" title="Increase text size">A+</button>
+        <span class="font-size-label" id="fontSizeLabel">Default</span>
+      </div>
+
+      <div class="toolbar-icon-group">
+        <span class="toolbar-divider" aria-hidden="true"></span>
+
+        <button class="toolbar-icon-btn" id="favoriteBtn" type="button" aria-pressed="false" aria-label="Save this devotion to favorites" title="Save">
+          <span class="toolbar-icon-glyph" aria-hidden="true">&#9825;</span>
+        </button>
+        <button class="toolbar-icon-btn" id="shareBtn" type="button" aria-label="Share this devotion" title="Share">
+          <span class="toolbar-icon-glyph" aria-hidden="true">&#8663;</span>
+        </button>
+
+        <div class="toolbar-more" id="devotionMore">
+          <button class="toolbar-icon-btn" id="moreBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="moreMenu" aria-label="More actions" title="More">
+            <span aria-hidden="true">&#8943;</span>
+          </button>
+          <div class="toolbar-more-menu" id="moreMenu" role="menu" hidden>
+            <button class="toolbar-more-item" id="copyVerseBtn" type="button" role="menuitem">Copy Verse</button>
+            <button class="toolbar-more-item" id="printBtn" type="button" role="menuitem">Print</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="devotion-toolbar-status" id="toolbarStatus" role="status" aria-live="polite"></p>
+    </div>
+
+    <!-- ============ Verse of the Day ============ -->
+    <section class="verse-card" aria-labelledby="verseHeading">
+      <h2 class="section-eyebrow" id="verseHeading">Verse of the Day</h2>
+      <blockquote class="verse-text" id="verseText"></blockquote>
+      <div class="verse-meta">
+        <cite class="verse-reference" id="verseReference"></cite>
+        <span class="verse-meta-divider" aria-hidden="true">&middot;</span>
+        <span class="verse-translation" id="verseTranslation"></span>
+      </div>
+      <a class="devotion-btn devotion-btn-primary" id="readScriptureLink" href="bible.html">
+        Read Scripture <span aria-hidden="true">&#8594;</span>
+      </a>
+
+      <button class="verse-card-copy-btn" id="verseCardCopyBtn" type="button" aria-label="Copy today's verse to clipboard" title="Copy verse">
+        <span aria-hidden="true">&#10063;</span>
+      </button>
+    </section>
+
+    <!-- ============ Today's Reading ============ -->
+    <section class="reading-section" aria-labelledby="readingHeading">
+      <h2 class="section-eyebrow" id="readingHeading">Today's Reading</h2>
+      <p class="reading-reference" id="readingReference"></p>
+      <p class="reading-summary" id="readingSummary"></p>
+      <a class="devotion-btn devotion-btn-outline" id="readPassageLink" href="bible.html">
+        Read Full Passage <span aria-hidden="true">&#8594;</span>
+      </a>
+    </section>
+
+    <!-- ============ Reflection ============ -->
+    <section class="reflection-section" aria-labelledby="reflectionHeading">
+      <h2 class="section-eyebrow" id="reflectionHeading">Reflection</h2>
+      <div class="reflection-body" id="reflectionBody"></div>
+    </section>
+
+    <!-- ============ Key Takeaway ============ -->
+    <section class="takeaway-card" aria-labelledby="takeawayHeading">
+      <h2 class="section-eyebrow section-eyebrow-on-dark" id="takeawayHeading">Key Takeaway</h2>
+      <p class="takeaway-text" id="takeawayText"></p>
+    </section>
+
+    <!-- ============ Prayer ============ -->
+    <section class="prayer-section" aria-labelledby="prayerHeading">
+      <span class="prayer-icon" aria-hidden="true">&#128591;</span>
+      <h2 class="section-eyebrow" id="prayerHeading">Prayer</h2>
+      <p class="prayer-text" id="prayerText"></p>
+    </section>
+
+    <!-- ============ Reflect ============ -->
+    <section class="reflect-section" aria-labelledby="reflectHeading">
+      <h2 class="section-eyebrow" id="reflectHeading">Reflect</h2>
+      <ol class="reflect-list" id="reflectList"></ol>
+    </section>
+
+    <!-- ============ Today's Action ============ -->
+    <section class="action-section" aria-labelledby="actionHeading">
+      <h2 class="section-eyebrow" id="actionHeading">Today's Action</h2>
+      <p class="action-text" id="actionText"></p>
+    </section>
+
+    <!-- ============ Related Scriptures ============ -->
+    <section class="related-section" aria-labelledby="relatedHeading">
+      <h2 class="section-eyebrow" id="relatedHeading">Related Scriptures</h2>
+      <div class="related-grid" id="relatedGrid"></div>
+    </section>
+
+    <!-- ============ Devotion Navigation ============ -->
+    <nav class="devotion-nav" aria-label="Browse devotions">
+      <button class="devotion-nav-btn" id="prevDevotionBtn" type="button">
+        <span aria-hidden="true">&#8592;</span> Previous Devotion
+      </button>
+      <button class="devotion-nav-btn devotion-nav-today" id="todayDevotionBtn" type="button">
+        Today's Devotion
+      </button>
+      <button class="devotion-nav-btn" id="nextDevotionBtn" type="button">
+        Next Devotion <span aria-hidden="true">&#8594;</span>
+      </button>
+    </nav>
+
+  </div>
+</main>
+
+<script src="js/devotion.js" defer></script>
+</body>
+</html>
