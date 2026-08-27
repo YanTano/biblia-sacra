@@ -33,17 +33,31 @@ body.pray-body{
 
 /* ---------------- Header ---------------- */
 
-.pray-header{
+/* Header + text-size toolbar bar scroll together as a single sticky
+   unit, so opening Menu never gets scrolled out of view (same pattern
+   as the Bible reader's #readerTopbars). */
+.pray-topbars{
   position: sticky;
   top: 0;
   z-index: 60;
+}
+
+.pray-header{
   background: linear-gradient(120deg, #0E3252 0%, #1B4E76 100%);
   border-bottom: 1px solid rgba(223,175,69,0.3);
   box-shadow: 0 8px 30px rgba(9,26,41,0.25);
 }
 
-.pray-header .menu-toggle span{ background: var(--cloud); }
-.pray-header .menu-toggle:hover{ background: rgba(255,253,248,0.14); }
+.pray-header .menu-toggle,
+.pray-header .search-toggle,
+.pray-header .fullscreen-toggle{
+  background: rgba(255,253,248,0.12);
+  border-color: rgba(223,175,69,0.4);
+  color: var(--cloud);
+}
+.pray-header .menu-toggle:hover,
+.pray-header .search-toggle:hover,
+.pray-header .fullscreen-toggle:hover{ background: rgba(255,253,248,0.2); }
 .pray-header .reader-brand-name{ color: var(--cloud); }
 .pray-header .reader-brand-tag{ color: var(--gold); }
 .pray-header .back-link{
@@ -57,51 +71,60 @@ body.pray-body{
   background: var(--gold);
   color: #123754;
 }
-.pray-header .font-size-control{
-  background: rgba(255,253,248,0.12);
-  border-color: rgba(223,175,69,0.4);
-  box-shadow: none;
-}
-.pray-header .font-size-btn{
-  background: rgba(255,253,248,0.1);
-  border-color: rgba(223,175,69,0.35);
-  color: var(--cloud);
-}
-.pray-header .font-size-btn:hover{ background: rgba(223,175,69,0.28); }
-.pray-header .font-size-label{ color: rgba(255,253,248,0.75); }
-.pray-header .font-size-reset{ color: var(--gold); }
-.pray-header .font-size-reset:hover{ color: var(--cloud); }
 
 .pray-header-inner{
   max-width: 1400px;
   margin: 0 auto;
   padding: 14px clamp(16px, 3vw, 28px);
-  display: grid;
-  grid-template-columns: auto auto 1fr auto;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 14px;
 }
 
-.menu-toggle{
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  width: 40px;
-  height: 40px;
-  background: none;
-  border: none;
+.pray-header-left{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Search / Menu / Fullscreen — grouped together and visible on every
+   breakpoint, desktop included (same pattern as the Bible reader). */
+.pray-header-actions{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.search-toggle,
+.menu-toggle,
+.fullscreen-toggle{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--cloud);
+  background: rgba(255, 253, 248, 0.12);
+  border: 1px solid rgba(223, 175, 69, 0.4);
+  padding: 10px 18px;
+  border-radius: 999px;
   cursor: pointer;
-  border-radius: 10px;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
-.menu-toggle span{
-  display: block;
-  width: 20px;
-  height: 2px;
-  background: var(--deep-blue);
-  border-radius: 2px;
-}
-.menu-toggle:hover{ background: rgba(223,175,69,0.12); }
+.menu-toggle[aria-expanded="true"],
+.fullscreen-toggle[aria-pressed="true"]{ background: var(--gold); color: #123754; }
+.fullscreen-toggle span.fullscreen-label-short{ display: none; } /* mobile-only short label, see below */
+
+/* Fullscreen (distraction-free reading) is mobile-only — on desktop
+   there's already plenty of room, so the button stays hidden there
+   and only appears at the mobile breakpoint below. */
+.fullscreen-toggle{ display: none; }
 
 .back-link{
   display: inline-flex;
@@ -110,38 +133,101 @@ body.pray-body{
   font-family: var(--sans);
   font-size: 0.88rem;
   font-weight: 600;
-  color: var(--deep-blue);
+  color: var(--cloud);
   padding: 10px 16px 10px 12px;
   border-radius: 999px;
-  background: var(--white);
-  border: 1px solid rgba(223,175,69,0.35);
-  box-shadow: 0 6px 16px rgba(23,74,115,0.08);
+  background: rgba(255,253,248,0.12);
+  border: 1px solid rgba(223,175,69,0.4);
+  box-shadow: none;
   transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 .back-link:hover, .back-link:focus-visible{
   transform: translateY(-2px);
   box-shadow: 0 10px 22px rgba(223,175,69,0.28);
-  background: var(--gold-soft);
+  background: var(--gold);
+  color: #123754;
+}
+.back-link .back-arrow{
+  font-size: 1.05rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.reader-brand{ text-align: center; line-height: 1.1; }
+.reader-brand{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.reader-brand-badge{
+  display: inline-flex;
+  color: var(--gold);
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.reader-brand-text{ display: flex; flex-direction: column; line-height: 1.1; min-width: 0; }
 .reader-brand-name{
-  display: block;
   font-family: var(--serif);
   font-weight: 600;
-  font-size: 1.4rem;
-  color: var(--deep-blue);
+  font-size: 1.28rem;
+  color: var(--cloud);
+  white-space: nowrap;
 }
 .reader-brand-tag{
-  display: block;
   font-family: var(--sans);
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--gold);
   font-weight: 600;
   margin-top: 3px;
+}
+
+/* Mobile-only: quick section switch (Prayer Library / My Journal),
+   a dropdown equivalent of the sidebar tabs for small screens. */
+.pray-section-select{
+  display: none;
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #123754;
+  background-color: #FFFDF8;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23DFAF45' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  border: 1px solid rgba(223,175,69,0.4);
+  border-radius: 999px;
+  padding: 10px 34px 10px 16px;
+  cursor: pointer;
+}
+
+/* ---------------- Text-size toolbar bar ----------------
+   Hidden until Menu is clicked — same pattern as the Bible reader's
+   #readerToolbarBar. Lives outside .pray-header so it gets the light
+   card-style background instead of the dark header gradient. */
+
+.pray-toolbar-bar{
+  background: linear-gradient(180deg, #FBF3E1 0%, var(--cloud) 100%);
+  border-bottom: 1px solid rgba(223,175,69,0.3);
+}
+.pray-toolbar-bar[hidden]{ display: none; }
+
+.pray-toolbar-inner{
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 12px clamp(16px, 3vw, 28px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 /* ---------------- Text size adjuster ---------------- */
@@ -155,7 +241,6 @@ body.pray-body{
   border-radius: var(--radius-md);
   padding: 6px;
   box-shadow: 0 6px 16px rgba(23,74,115,0.06);
-  justify-self: end;
 }
 
 .font-size-btn{
@@ -202,19 +287,77 @@ body.pray-body{
 @media (max-width: 900px){
   .back-link span.back-label{ display: none; }
   .back-link{ padding: 10px 12px; }
-  .font-size-label{ display: none; }
-  .font-size-reset{ display: none; }
 }
 
+/* ---- Mobile phones: 2-row header, same pattern as the Bible reader —
+   [<Back] [reader-brand-badge + text] [Search] [Menu] [Fullscreen]
+   [Prayer Library / My Journal  v]
+   (Menu reveals the text-size bar below, same as the Bible reader) ---- */
 @media (max-width: 640px){
-  .menu-toggle{ display: flex; }
-  .reader-brand-name{ font-size: 1.1rem; }
+  .pray-header-inner{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    row-gap: 10px;
+    column-gap: 8px;
+  }
+
+  /* Row 1, left — Back + brand (badge shown, name/tag sized to fit) */
+  .pray-header-left{
+    order: 1;
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 8px;
+  }
+  .back-link{ padding: 8px 12px; font-size: 0.8rem; flex-shrink: 0; }
+  .back-link span.back-label{ display: none; }
+
+  .reader-brand{ gap: 6px; min-width: 0; }
+  .reader-brand-badge{ font-size: 1.15rem; }
+  .reader-brand-text{ min-width: 0; overflow: hidden; }
+  .reader-brand-name{
+    font-size: 0.92rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  .reader-brand-tag{ font-size: 0.52rem; letter-spacing: 0.14em; margin-top: 2px; }
+
+  /* Row 1, right — Search / Menu / Fullscreen (icon-only pills) */
+  .pray-header-actions{ order: 2; gap: 6px; }
+  .fullscreen-toggle{ display: inline-flex; }
+  .search-toggle,
+  .menu-toggle,
+  .fullscreen-toggle{ padding: 8px 10px; font-size: 0.72rem; gap: 0; }
+  .search-toggle span.search-label,
+  .menu-toggle span.menu-label,
+  .fullscreen-toggle span.fullscreen-label,
+  .fullscreen-toggle span.fullscreen-label-short{ display: none; }
+
+  /* Row 2 — Prayer section dropdown, full width */
+  .pray-section-select{
+    display: block;
+    order: 3;
+    flex: 1 1 100%;
+    width: 100%;
+  }
 }
 
 @media (max-width: 400px){
-  .pray-header-inner{ grid-template-columns: auto auto 1fr; gap: 8px; }
-  .font-size-control{ grid-column: 1 / -1; justify-self: stretch; justify-content: center; order: 3; }
   .reader-brand-tag{ display: none; }
+}
+
+/* Fullscreen / distraction-free toggle — mobile only. Hides the intro
+   quote card and the section dropdown to give the prayer list more
+   room; the header itself (Back/brand/Search/Menu/Fullscreen) stays
+   so the person can always get back out. */
+@media (max-width: 640px){
+  html[data-pray-immersive="true"] .intro-card,
+  html[data-pray-immersive="true"] .pray-section-select{
+    display: none;
+  }
 }
 
 /* ---------------- Shell (sidebar + content) ---------------- */
@@ -511,12 +654,15 @@ body.pray-body{
 /* ---------------- Category detail ---------------- */
 
 .category-detail{
+  position: relative;
   background: var(--white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
-  padding: clamp(22px, 4vw, 36px);
 }
 .category-detail.is-hidden{ display: none; }
+.category-detail-scroll{
+  padding: clamp(22px, 4vw, 36px);
+}
 
 .detail-back{
   display: inline-flex;
@@ -536,6 +682,30 @@ body.pray-body{
 }
 .detail-back:hover{ background: var(--gold-soft); }
 
+/* Close (X) button — sits in the upper right of the selected prayer at
+   every breakpoint (desktop included). On mobile, the category detail
+   becomes a full-screen overlay (max-width:640px below) and this
+   button switches to fixed positioning to match. */
+.detail-close{
+  display: inline-flex;
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--cloud);
+  color: var(--deep-blue);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.detail-close:hover{ background: rgba(223,175,69,0.22); }
+
 .detail-title{
   font-family: var(--serif);
   font-weight: 600;
@@ -551,6 +721,35 @@ body.pray-body{
 }
 
 .detail-prayers{ display: flex; flex-direction: column; gap: 14px; }
+
+/* On mobile, opening a category should show *only* that prayer: the
+   detail view becomes a full-screen overlay above everything else
+   (header dropdown, intro card, category list), closed via the [x]
+   in the upper right instead of the inline "Back" button. */
+@media (max-width: 640px){
+  .category-detail:not(.is-hidden){
+    position: fixed;
+    inset: 0;
+    z-index: 210;
+    margin: 0;
+    border-radius: 0;
+  }
+  .category-detail-scroll{
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 60px 18px 40px;
+  }
+  .detail-back{ display: none; }
+  .detail-close{
+    display: inline-flex;
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 211;
+    box-shadow: 0 6px 16px rgba(23,74,115,0.18);
+  }
+}
 
 .prayer-card{
   background: var(--white);
@@ -736,4 +935,100 @@ body.pray-body{
   font-family: var(--sans);
   color: var(--text-soft);
   padding: 30px 10px;
+}
+
+/* ---------------- Mobile prayer search overlay ----------------
+   Same pattern as the Bible reader's search overlay (no backdrop
+   blur — a plain tinted background only, so it never interferes
+   with Chrome's autofill/native-UI positioning for #prayerSearchInput). */
+
+.search-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  background: rgba(23,59,86,0.42);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 6vh 12px 12px;
+}
+.search-overlay.is-open{ display: flex; }
+
+.search-panel{
+  width: 100%;
+  max-width: 480px;
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 30px 80px rgba(15,34,53,0.35);
+  overflow: hidden;
+}
+
+.search-panel-header{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(223,175,69,0.2);
+}
+.search-panel-header .search-icon{ color: var(--gold); font-size: 1.1rem; }
+#prayerSearchInput{
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  color: var(--text);
+  background: transparent;
+}
+.search-close{
+  border: none;
+  background: transparent;
+  color: var(--text-soft);
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 6px;
+}
+.search-close:hover{ color: var(--deep-blue); }
+
+.search-results{ overflow-y: auto; padding: 6px 10px 16px; }
+.search-hint,
+.search-empty{
+  padding: 30px 18px;
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  color: var(--text-soft);
+}
+
+.search-result{
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 12px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+.search-result:hover,
+.search-result:focus-visible{ background: var(--cloud); }
+.search-result .result-ref{
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+.search-result .result-snippet{
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  color: var(--text);
+  line-height: 1.5;
+  margin-top: 3px;
 }

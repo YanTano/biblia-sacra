@@ -709,12 +709,23 @@
   var searchDebounceTimer = null;
   var searchToken = 0;
 
+  /* Chrome (mobile especially) keeps its own "previously typed values"
+     popover for text inputs, keyed off the field's name/id, and it
+     ignores autocomplete="off" for that popover. The reliable way to
+     stop it from appearing — and overlapping the field — is to keep
+     the input `readonly` until the instant it's focused, and to give
+     it a fresh, unique name each time so Chrome has nothing saved to
+     offer against it. */
   function openSearch() {
     searchOverlay.classList.add("is-open");
+    searchInput.setAttribute("name", "bs-search-" + Date.now());
+    searchInput.removeAttribute("readonly");
     searchInput.focus();
   }
   function closeSearch() {
     searchOverlay.classList.remove("is-open");
+    searchInput.blur();
+    searchInput.setAttribute("readonly", "");
   }
 
   searchToggle.addEventListener("click", openSearch);
@@ -1123,6 +1134,9 @@
 
   function toggleReaderToolbar() {
     if (isToolbarOpen()) { closeReaderToolbar(); } else { openReaderToolbar(); }
+    // Defensive: drop any lingering focus/hover styling on touch devices
+    // so the button only ever looks "on" via its real aria-expanded state.
+    if (menuToggleBtn) { menuToggleBtn.blur(); }
   }
 
   function initMenuToggle() {
@@ -1159,6 +1173,9 @@
   function toggleImmersive() {
     var next = !isImmersive();
     setImmersive(next);
+    // Defensive: drop any lingering focus/hover styling on touch devices
+    // so the button only ever looks "on" via its real aria-pressed state.
+    if (fullscreenToggleBtn) { fullscreenToggleBtn.blur(); }
 
     // Best-effort native Fullscreen API too — purely additive, and
     // failures (common on iOS Safari) are ignored since the CSS-driven

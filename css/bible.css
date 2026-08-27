@@ -211,12 +211,27 @@ html[data-reader-theme="dark"] .reader-toolbar-bar{
   transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
   white-space: nowrap;
   flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* no double-tap-to-zoom delay/quirk on mobile */
 }
-.search-toggle:hover,
+/* Hover-driven highlight only for devices with a real mouse. On
+   touch screens, :hover has no true "leave" event — a tap (or a fast
+   double-tap near a neighbouring button, e.g. Menu next to Fullscreen)
+   can leave it visually "stuck" highlighted even though the button is
+   not actually pressed/expanded. Restricting :hover like this keeps
+   the highlight strictly tied to [aria-pressed]/[aria-expanded]. */
+@media (hover: hover) and (pointer: fine){
+  .search-toggle:hover,
+  .menu-toggle:hover,
+  .fullscreen-toggle:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(223,175,69,0.28);
+    background: var(--gold);
+    color: #123754;
+  }
+}
 .search-toggle:focus-visible,
-.menu-toggle:hover,
 .menu-toggle:focus-visible,
-.fullscreen-toggle:hover,
 .fullscreen-toggle:focus-visible{
   transform: translateY(-2px);
   box-shadow: 0 10px 22px rgba(223,175,69,0.28);
@@ -336,12 +351,14 @@ html[data-reader-theme="dark"] .reader-toolbar-bar{
 
 /* ---------------- Distraction-free / fullscreen reading mode ----------------
    Toggled by #fullscreenToggleBtn via html[data-immersive="true"]. Hides
-   everything except the top row of the header (Back / Search / Menu /
-   Fullscreen) — the book+chapter selects, the toolbar drawer, and the
-   bottom chapter-nav (Prev / View / Next) are all hidden. */
+   the book+chapter selects and the bottom chapter-nav (Prev / View / Next)
+   permanently. The reading toolbar (Light/Dark, text size, "...") is NOT
+   force-hidden here — it starts closed (closeReaderToolbar() is called
+   when fullscreen turns on) but the Menu button must still be able to
+   reopen it while in fullscreen, so it's left to its own [hidden]
+   attribute instead of being overridden with !important. */
 
 html[data-immersive="true"] .reader-select-group,
-html[data-immersive="true"] .reader-toolbar-bar,
 html[data-immersive="true"] .chapter-nav{
   display: none !important;
 }
@@ -552,6 +569,45 @@ html[data-reader-theme="dark"] .theme-segmented-btn[aria-pressed="true"]{
   .toolbar-pill-btn{ padding: 10px 12px; }
   #chapterNotesBtn,
   #chapterShareBtn{ display: none; }
+}
+
+/* ---- Mobile: keep Light/Dark, Text size and "..." on one row ----
+   Each control group is shrunk so the whole row — theme toggle, font
+   size adjuster, "..." trigger — fits on one line without wrapping.
+   No horizontal scroll here: the "..." trigger's dropdown is an
+   absolutely-positioned child of this row, and a scrolling ancestor
+   would clip it, so overflow is kept visible and sizing does the work
+   instead. */
+@media (max-width: 640px){
+  .reader-toolbar-inner{
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 8px;
+    overflow: visible;
+  }
+
+  .theme-segmented,
+  .font-size-control,
+  .toolbar-more{ flex-shrink: 0; }
+
+  .theme-segmented{ padding: 3px; gap: 1px; }
+  .theme-segmented-btn{ padding: 7px 9px; }
+
+  .font-size-control{ padding: 3px 8px; gap: 6px; }
+  .font-size-btn{ width: 28px; height: 28px; font-size: 0.86rem; }
+  .font-size-slider{ width: 56px; }
+  .font-size-label{ display: none; }
+  .font-size-reset-btn{ padding: 6px 9px; font-size: 0.7rem; }
+}
+
+/* Very narrow phones: shrink a little further still. */
+@media (max-width: 360px){
+  .reader-toolbar-inner{ gap: 6px; padding-left: 12px; padding-right: 12px; }
+  .theme-segmented-btn{ padding: 6px 7px; }
+  .font-size-control{ padding: 3px 6px; gap: 4px; }
+  .font-size-btn{ width: 26px; height: 26px; }
+  .font-size-slider{ width: 42px; }
+  .font-size-reset-btn{ padding: 5px 7px; font-size: 0.66rem; }
 }
 
 /* ---- "..." icon button + collapsible group ----
@@ -1094,7 +1150,6 @@ html[data-reader-theme="dark"] .theme-segmented-btn[aria-pressed="true"]{
   inset: 0;
   z-index: 200;
   background: rgba(23,59,86,0.42);
-  backdrop-filter: blur(4px);
   display: none;
   align-items: flex-start;
   justify-content: center;
@@ -1112,6 +1167,17 @@ html[data-reader-theme="dark"] .theme-segmented-btn[aria-pressed="true"]{
   border-radius: var(--radius-lg);
   box-shadow: 0 30px 80px rgba(15,34,53,0.35);
   overflow: hidden;
+}
+
+/* Keep the panel close to the top edge on mobile: the input is now
+   protected from Chrome's "past entries" popover via the readonly/name
+   trick in bible.js, but as a fallback we still want maximum room
+   *below* the input (above the on-screen keyboard) so that if a
+   suggestion popover ever does appear, it opens downward into that
+   space instead of being forced to flip up on top of the field. */
+@media (max-width: 640px){
+  .search-overlay{ padding: 6vh 12px 12px; }
+  .search-panel{ max-height: 86vh; }
 }
 
 .search-panel-header{

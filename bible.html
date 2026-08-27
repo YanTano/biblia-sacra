@@ -173,7 +173,12 @@
   <div class="search-panel">
     <div class="search-panel-header">
       <span class="search-icon" aria-hidden="true">&#128269;</span>
-      <input type="text" id="searchInput" placeholder="Search Scripture&hellip;" autocomplete="off" aria-label="Search Scripture">
+      <input type="text" id="searchInput" placeholder="Search Scripture&hellip;"
+             name="biblia-sacra-scripture-search" autocomplete="off"
+             autocapitalize="off" autocorrect="off" spellcheck="false"
+             inputmode="search" data-lpignore="true" data-1p-ignore
+             readonly
+             aria-label="Search Scripture">
       <button class="search-close" id="searchClose" type="button" aria-label="Close search">&times;</button>
     </div>
     <div class="search-results" id="searchResults">

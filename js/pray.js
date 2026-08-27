@@ -210,6 +210,7 @@
      ========================================================== */
 
   var menuToggle = document.getElementById("menuToggle");
+  var prayToolbarBar = document.getElementById("prayToolbarBar");
   var praySidebar = document.getElementById("praySidebar");
   var sidebarOverlay = document.getElementById("sidebarOverlay");
 
@@ -221,9 +222,19 @@
   var categoryListView = document.getElementById("categoryListView");
   var categoryDetailView = document.getElementById("categoryDetailView");
   var detailBackBtn = document.getElementById("detailBackBtn");
+  var detailCloseBtn = document.getElementById("detailCloseBtn");
   var detailTitle = document.getElementById("detailTitle");
   var detailSubtitle = document.getElementById("detailSubtitle");
   var detailPrayers = document.getElementById("detailPrayers");
+
+  var paySectionSelect = document.getElementById("paySectionSelect");
+  var prayerFullscreenToggle = document.getElementById("prayerFullscreenToggle");
+
+  var prayerSearchToggle = document.getElementById("prayerSearchToggle");
+  var prayerSearchOverlay = document.getElementById("prayerSearchOverlay");
+  var prayerSearchClose = document.getElementById("prayerSearchClose");
+  var prayerSearchInput = document.getElementById("prayerSearchInput");
+  var prayerSearchResults = document.getElementById("prayerSearchResults");
 
   var introHeart = document.getElementById("introHeart");
 
@@ -272,17 +283,36 @@
   function openSidebar() {
     praySidebar.classList.add("is-open");
     sidebarOverlay.classList.add("is-open");
-    menuToggle.setAttribute("aria-expanded", "true");
   }
   function closeSidebar() {
     praySidebar.classList.remove("is-open");
     sidebarOverlay.classList.remove("is-open");
-    menuToggle.setAttribute("aria-expanded", "false");
   }
-  menuToggle.addEventListener("click", function () {
-    if (praySidebar.classList.contains("is-open")) { closeSidebar(); } else { openSidebar(); }
-  });
   sidebarOverlay.addEventListener("click", closeSidebar);
+
+  /* ==========================================================
+     Menu button — toggles the text-size toolbar bar, same
+     behavior as the Bible reader's Menu button.
+     ========================================================== */
+
+  function isPrayToolbarOpen() {
+    return !!prayToolbarBar && !prayToolbarBar.hidden;
+  }
+  function openPrayToolbar() {
+    if (!prayToolbarBar) { return; }
+    prayToolbarBar.hidden = false;
+    if (menuToggle) { menuToggle.setAttribute("aria-expanded", "true"); }
+  }
+  function closePrayToolbar() {
+    if (!prayToolbarBar) { return; }
+    prayToolbarBar.hidden = true;
+    if (menuToggle) { menuToggle.setAttribute("aria-expanded", "false"); }
+  }
+  if (menuToggle) {
+    menuToggle.addEventListener("click", function () {
+      if (isPrayToolbarOpen()) { closePrayToolbar(); } else { openPrayToolbar(); }
+    });
+  }
 
   /* ==========================================================
      Tabs (Prayer Library / My Journal)
@@ -296,11 +326,41 @@
     tabJournalBtn.setAttribute("aria-selected", !isLibrary ? "true" : "false");
     libraryView.classList.toggle("is-hidden", !isLibrary);
     journalView.classList.toggle("is-hidden", isLibrary);
+    if (paySectionSelect) { paySectionSelect.value = isLibrary ? "library" : "journal"; }
     closeSidebar();
   }
 
   tabLibraryBtn.addEventListener("click", function () { activateTab("library"); });
   tabJournalBtn.addEventListener("click", function () { activateTab("journal"); });
+
+  /* Mobile-only dropdown — lists every category-row title (built in
+     renderCategoryList below) so a category can be jumped to directly,
+     plus "Prayer Library" (the overview) and "My Journal". */
+  function renderCategorySelect() {
+    if (!paySectionSelect) { return; }
+    var html = '<option value="library">Prayer Library</option>';
+    LIBRARY.forEach(function (group, idx) {
+      html += '<option value="cat-' + idx + '">' + escapeHtml(group.group) + "</option>";
+    });
+    html += '<option value="journal">My Journal</option>';
+    paySectionSelect.innerHTML = html;
+  }
+
+  if (paySectionSelect) {
+    paySectionSelect.addEventListener("change", function () {
+      var value = paySectionSelect.value;
+      if (value === "journal") {
+        activateTab("journal");
+      } else if (value.indexOf("cat-") === 0) {
+        var idx = parseInt(value.slice(4), 10);
+        activateTab("library");
+        if (LIBRARY[idx]) { openCategoryDetail(LIBRARY[idx]); }
+      } else {
+        activateTab("library");
+        closeCategoryDetail();
+      }
+    });
+  }
 
   /* ==========================================================
      Prayer library — category list + detail
@@ -322,8 +382,11 @@
       btn.addEventListener("click", function () {
         var idx = parseInt(btn.getAttribute("data-index"), 10);
         openCategoryDetail(LIBRARY[idx]);
+        if (paySectionSelect) { paySectionSelect.value = "cat-" + idx; }
       });
     });
+
+    renderCategorySelect();
   }
 
   function openCategoryDetail(group) {
@@ -344,9 +407,11 @@
   function closeCategoryDetail() {
     categoryDetailView.classList.add("is-hidden");
     categoryListView.classList.remove("is-hidden");
+    if (paySectionSelect) { paySectionSelect.value = "library"; }
   }
 
   detailBackBtn.addEventListener("click", closeCategoryDetail);
+  if (detailCloseBtn) { detailCloseBtn.addEventListener("click", closeCategoryDetail); }
 
   /* ==========================================================
      Intro heart toggle (save this verse)
@@ -504,6 +569,101 @@
     if (fontResetBtn) {
       fontResetBtn.addEventListener("click", function () { currentScale = applyFontScale(1); });
     }
+  }
+
+  /* ==========================================================
+     Fullscreen / distraction-free mode (mobile header button)
+     ========================================================== */
+
+  function toggleFullscreen() {
+    var isOn = document.documentElement.getAttribute("data-pray-immersive") === "true";
+    document.documentElement.setAttribute("data-pray-immersive", isOn ? "false" : "true");
+    if (prayerFullscreenToggle) { prayerFullscreenToggle.setAttribute("aria-pressed", isOn ? "false" : "true"); }
+    if (!isOn) { closePrayToolbar(); }
+  }
+  if (prayerFullscreenToggle) {
+    prayerFullscreenToggle.addEventListener("click", toggleFullscreen);
+  }
+
+  /* ==========================================================
+     Mobile prayer search — filters the library by title/text,
+     jumps straight to the matching category's detail view.
+     ========================================================== */
+
+  var prayerSearchDebounce = null;
+
+  function openPrayerSearch() {
+    if (!prayerSearchOverlay) { return; }
+    prayerSearchOverlay.classList.add("is-open");
+    prayerSearchInput.setAttribute("name", "bs-prayer-search-" + Date.now());
+    prayerSearchInput.removeAttribute("readonly");
+    prayerSearchInput.focus();
+  }
+  function closePrayerSearch() {
+    if (!prayerSearchOverlay) { return; }
+    prayerSearchOverlay.classList.remove("is-open");
+    prayerSearchInput.blur();
+    prayerSearchInput.setAttribute("readonly", "");
+  }
+
+  if (prayerSearchToggle) {
+    prayerSearchToggle.addEventListener("click", openPrayerSearch);
+    prayerSearchClose.addEventListener("click", closePrayerSearch);
+    prayerSearchOverlay.addEventListener("click", function (e) {
+      if (e.target === prayerSearchOverlay) { closePrayerSearch(); }
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && prayerSearchOverlay.classList.contains("is-open")) { closePrayerSearch(); }
+    });
+
+    prayerSearchInput.addEventListener("input", function () {
+      var q = prayerSearchInput.value.trim();
+      clearTimeout(prayerSearchDebounce);
+      if (q.length < 2) {
+        prayerSearchResults.innerHTML = '<p class="search-hint">Type at least 2 letters to search prayers.</p>';
+        return;
+      }
+      prayerSearchDebounce = setTimeout(function () { runPrayerSearch(q); }, 200);
+    });
+  }
+
+  function runPrayerSearch(query) {
+    var q = query.toLowerCase();
+    var matches = [];
+    LIBRARY.forEach(function (group) {
+      var groupTitleMatches = group.group.toLowerCase().indexOf(q) !== -1;
+      group.prayers.forEach(function (p) {
+        if (groupTitleMatches || p.title.toLowerCase().indexOf(q) !== -1 || p.text.toLowerCase().indexOf(q) !== -1) {
+          matches.push({ group: group, prayer: p });
+        }
+      });
+    });
+
+    if (matches.length === 0) {
+      prayerSearchResults.innerHTML = '<p class="search-empty">No prayers found for &ldquo;' + escapeHtml(query) + '&rdquo;.</p>';
+      return;
+    }
+
+    var html = "";
+    matches.slice(0, 30).forEach(function (m, i) {
+      var snippet = m.prayer.text.replace(/\n/g, " ");
+      if (snippet.length > 120) { snippet = snippet.slice(0, 120) + "\u2026"; }
+      html += '<button class="search-result" type="button" data-index="' + i + '">' +
+        '<span class="result-ref">' + escapeHtml(m.group.group) + '</span>' +
+        '<span class="result-snippet">' + escapeHtml(m.prayer.title) + ' \u2014 ' + escapeHtml(snippet) + '</span>' +
+        '</button>';
+    });
+    prayerSearchResults.innerHTML = html;
+
+    prayerSearchResults.querySelectorAll(".search-result").forEach(function (btn, i) {
+      btn.addEventListener("click", function () {
+        var m = matches[i];
+        activateTab("library");
+        openCategoryDetail(m.group);
+        if (paySectionSelect) { paySectionSelect.value = "cat-" + LIBRARY.indexOf(m.group); }
+        closePrayerSearch();
+      });
+    });
   }
 
   /* ==========================================================
