@@ -30,6 +30,7 @@
 
   var menuToggleBtn = document.getElementById("menuToggleBtn");
   var readerToolbarBar = document.getElementById("readerToolbarBar");
+  var fullscreenToggleBtn = document.getElementById("fullscreenToggleBtn");
   var printChapterBtn = document.getElementById("printChapterBtn");
   var copyChapterBtn = document.getElementById("copyChapterBtn");
 
@@ -213,9 +214,38 @@
     });
     html += "</div>";
 
+    // Fullscreen-only Prev / View / Next row, printed at the end of the
+    // reading card itself (the fixed .chapter-nav bar is hidden while
+    // html[data-immersive="true"], so readers still need a way to move
+    // between chapters without leaving distraction-free mode).
+    html += '<div class="chapter-nav-inline" id="chapterNavInline">';
+    html += '  <div class="chapter-nav-inner">';
+    html += '    <button class="chapter-nav-btn prev" id="prevChapterBtnInline" type="button">';
+    html += '      <span class="nav-btn-icon" aria-hidden="true">&#8592;</span>';
+    html += '      <span class="nav-btn-text">';
+    html += '        <span class="nav-label-full">Previous Chapter</span>';
+    html += '        <span class="nav-label-ref" id="prevChapterLabelInline"></span>';
+    html += "      </span>";
+    html += "    </button>";
+    html += '    <button class="chapter-nav-btn list" id="viewChapterListBtnInline" type="button" aria-haspopup="dialog" aria-controls="chapterListModal">';
+    html += '      <span class="nav-btn-icon" aria-hidden="true">&#128214;</span>';
+    html += '      <span class="nav-label-full">View Chapter List</span>';
+    html += '      <span class="nav-label-short">View</span>';
+    html += "    </button>";
+    html += '    <button class="chapter-nav-btn next" id="nextChapterBtnInline" type="button">';
+    html += '      <span class="nav-btn-text">';
+    html += '        <span class="nav-label-full">Next Chapter</span>';
+    html += '        <span class="nav-label-ref" id="nextChapterLabelInline"></span>';
+    html += "      </span>";
+    html += '      <span class="nav-btn-icon" aria-hidden="true">&#8594;</span>';
+    html += "    </button>";
+    html += "  </div>";
+    html += "</div>";
+
     readingCard.innerHTML = html;
 
     attachVerseHandlers(slug, meta ? meta.name : slug, chapterNum);
+    attachInlineChapterNavHandlers();
 
     updateChapterNavUI(slug, bookData, chapterNum, meta);
     chapterNav.hidden = false;
@@ -302,7 +332,7 @@
       }
       if (shareBtn) {
         shareBtn.addEventListener("click", function () {
-          shareVerse(slug, bookName, chapterNum, verseNum, verseText);
+          shareVerse(slug, bookName, chapterNum, verseNum, verseText, shareBtn);
         });
       }
     });
@@ -377,13 +407,44 @@
 
   /* ---------------- Copy / share ---------------- */
 
+  // navigator.clipboard is only available in secure contexts (https /
+  // localhost) and is undefined otherwise (e.g. a plain http:// deployment,
+  // which is how "Share this chapter" was silently doing nothing). This
+  // falls back to the older execCommand("copy") approach, which works in
+  // more environments, so copy/share always has a real chance to succeed.
+  function copyTextToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      try {
+        var textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.top = "-9999px";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        var ok = false;
+        try { ok = document.execCommand("copy"); } catch (execErr) { ok = false; }
+        document.body.removeChild(textarea);
+        if (ok) { resolve(); } else { reject(new Error("Copy command was not successful.")); }
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
   function refText(bookName, chapter, verse) {
     return bookName + " " + chapter + ":" + verse;
   }
 
   function copyVerse(bookName, chapter, verse, text, btn) {
     var payload = '"' + text + '" \u2014 ' + refText(bookName, chapter, verse);
-    var done = function () {
+    copyTextToClipboard(payload).then(function () {
+      if (!btn) { return; }
       var original = btn.innerHTML;
       btn.classList.add("is-copied");
       btn.innerHTML = "&#10003; <span>Copied</span>";
@@ -391,13 +452,15 @@
         btn.classList.remove("is-copied");
         btn.innerHTML = original;
       }, 1600);
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(payload).then(done).catch(function () {});
-    }
+    }).catch(function () {
+      if (!btn) { return; }
+      var original = btn.innerHTML;
+      btn.innerHTML = "&#9888; <span>Couldn&rsquo;t copy</span>";
+      setTimeout(function () { btn.innerHTML = original; }, 1600);
+    });
   }
 
-  function shareVerse(slug, bookName, chapter, verse) {
+  function shareVerse(slug, bookName, chapter, verse, text, btn) {
     var url = new URL(window.location.href);
     url.search = "";
     url.searchParams.set("book", slug);
@@ -409,14 +472,38 @@
         title: refText(bookName, chapter, verse) + " — Biblia Sacra",
         url: url.toString()
       }).catch(function () {});
-    } else if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url.toString()).catch(function () {});
+      return;
     }
+
+    copyTextToClipboard(url.toString()).then(function () {
+      if (!btn) { return; }
+      var original = btn.innerHTML;
+      btn.innerHTML = "&#10003; <span>Link copied</span>";
+      setTimeout(function () { btn.innerHTML = original; }, 1600);
+    }).catch(function () {
+      if (!btn) { return; }
+      var original = btn.innerHTML;
+      btn.innerHTML = "&#9888; <span>Couldn&rsquo;t copy</span>";
+      setTimeout(function () { btn.innerHTML = original; }, 1600);
+    });
   }
 
   /* ==========================================================
      Previous / Next chapter + book navigation
      ========================================================== */
+
+  // Prev / View / Next buttons printed inline at the end of the reading
+  // card (fullscreen only — see .chapter-nav-inline in css/bible.css).
+  // They're rebuilt into the DOM on every renderChapter() call, so their
+  // click handlers need re-attaching each time too.
+  function attachInlineChapterNavHandlers() {
+    var prevBtnInline = document.getElementById("prevChapterBtnInline");
+    var nextBtnInline = document.getElementById("nextChapterBtnInline");
+    var viewBtnInline = document.getElementById("viewChapterListBtnInline");
+    if (prevBtnInline) { prevBtnInline.addEventListener("click", goPrevChapter); }
+    if (nextBtnInline) { nextBtnInline.addEventListener("click", goNextChapter); }
+    if (viewBtnInline) { viewBtnInline.addEventListener("click", openChapterList); }
+  }
 
   function updateChapterNavUI(slug, bookData, chapterNum, meta) {
     var atFirstChapter = chapterNum <= 1;
@@ -425,34 +512,42 @@
     var atFirstBook = bookIdx <= 0;
     var atLastBook = bookIdx >= BIBLE_BOOKS.length - 1;
 
-    prevChapterBtn.disabled = atFirstChapter && atFirstBook;
-    nextChapterBtn.disabled = atLastChapter && atLastBook;
+    var prevChapterBtnInline = document.getElementById("prevChapterBtnInline");
+    var nextChapterBtnInline = document.getElementById("nextChapterBtnInline");
+    var prevChapterLabelInline = document.getElementById("prevChapterLabelInline");
+    var nextChapterLabelInline = document.getElementById("nextChapterLabelInline");
 
-    if (prevChapterLabel) {
-      if (!prevChapterBtn.disabled) {
-        if (!atFirstChapter) {
-          prevChapterLabel.textContent = (meta ? meta.name : slug) + " " + (chapterNum - 1);
-        } else {
-          var prevMeta = BIBLE_BOOKS[bookIdx - 1];
-          prevChapterLabel.textContent = prevMeta ? prevMeta.name : "";
-        }
+    var prevDisabled = atFirstChapter && atFirstBook;
+    var nextDisabled = atLastChapter && atLastBook;
+
+    prevChapterBtn.disabled = prevDisabled;
+    nextChapterBtn.disabled = nextDisabled;
+    if (prevChapterBtnInline) { prevChapterBtnInline.disabled = prevDisabled; }
+    if (nextChapterBtnInline) { nextChapterBtnInline.disabled = nextDisabled; }
+
+    var prevLabelText = "";
+    if (!prevDisabled) {
+      if (!atFirstChapter) {
+        prevLabelText = (meta ? meta.name : slug) + " " + (chapterNum - 1);
       } else {
-        prevChapterLabel.textContent = "";
+        var prevMeta = BIBLE_BOOKS[bookIdx - 1];
+        prevLabelText = prevMeta ? prevMeta.name : "";
       }
     }
+    if (prevChapterLabel) { prevChapterLabel.textContent = prevLabelText; }
+    if (prevChapterLabelInline) { prevChapterLabelInline.textContent = prevLabelText; }
 
-    if (nextChapterLabel) {
-      if (!nextChapterBtn.disabled) {
-        if (!atLastChapter) {
-          nextChapterLabel.textContent = (meta ? meta.name : slug) + " " + (chapterNum + 1);
-        } else {
-          var nextMeta = BIBLE_BOOKS[bookIdx + 1];
-          nextChapterLabel.textContent = nextMeta ? nextMeta.name + " 1" : "";
-        }
+    var nextLabelText = "";
+    if (!nextDisabled) {
+      if (!atLastChapter) {
+        nextLabelText = (meta ? meta.name : slug) + " " + (chapterNum + 1);
       } else {
-        nextChapterLabel.textContent = "";
+        var nextMeta = BIBLE_BOOKS[bookIdx + 1];
+        nextLabelText = nextMeta ? nextMeta.name + " 1" : "";
       }
     }
+    if (nextChapterLabel) { nextChapterLabel.textContent = nextLabelText; }
+    if (nextChapterLabelInline) { nextChapterLabelInline.textContent = nextLabelText; }
 
     if (chapterListTitle) {
       chapterListTitle.textContent = (meta ? meta.name : slug) + " \u2014 Chapters";
@@ -476,12 +571,16 @@
     if (!chapterListModal) { return; }
     chapterListModal.classList.add("is-open");
     if (viewChapterListBtn) { viewChapterListBtn.setAttribute("aria-expanded", "true"); }
+    var viewBtnInline = document.getElementById("viewChapterListBtnInline");
+    if (viewBtnInline) { viewBtnInline.setAttribute("aria-expanded", "true"); }
   }
 
   function closeChapterList() {
     if (!chapterListModal) { return; }
     chapterListModal.classList.remove("is-open");
     if (viewChapterListBtn) { viewChapterListBtn.setAttribute("aria-expanded", "false"); }
+    var viewBtnInline = document.getElementById("viewChapterListBtnInline");
+    if (viewBtnInline) { viewBtnInline.setAttribute("aria-expanded", "false"); }
   }
 
   function initChapterListModal() {
@@ -892,21 +991,25 @@
     var url = currentChapterUrl().toString();
 
     if (navigator.share) {
+      closeMoreMenu();
       navigator.share({ title: title, url: url }).catch(function () {});
-    } else if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(function () {
-        flashIconButton(chapterShareBtn, "&#10003;");
-      }).catch(function () {});
+      return;
     }
+
+    copyTextToClipboard(url).then(function () {
+      flashChapterToolButton(shareMenuItem, "&#10003;", "Link copied");
+    }).catch(function () {
+      flashChapterToolButton(shareMenuItem, "&#9888;", "Couldn't copy link");
+    });
   }
 
   function copyChapterLink() {
     var url = currentChapterUrl().toString();
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(function () {
-        flashChapterToolButton(copyChapterLinkBtn, "&#10003;", "Link copied");
-      }).catch(function () {});
-    }
+    copyTextToClipboard(url).then(function () {
+      flashChapterToolButton(copyChapterLinkBtn, "&#10003;", "Link copied");
+    }).catch(function () {
+      flashChapterToolButton(copyChapterLinkBtn, "&#9888;", "Couldn't copy link");
+    });
   }
 
   /* ---------------- Chapter notes toggle ---------------- */
@@ -977,7 +1080,6 @@
     if (shareMenuItem) {
       shareMenuItem.addEventListener("click", function () {
         shareChapter();
-        closeMoreMenu();
       });
     }
     if (copyChapterLinkBtn) {
@@ -1029,6 +1131,65 @@
   }
 
   /* ==========================================================
+     Fullscreen / distraction-free reading mode
+     Hides the select row, the toolbar drawer, and the bottom
+     chapter-nav, leaving only Back / Search / Menu / Fullscreen.
+     ========================================================== */
+
+  function isImmersive() {
+    return document.documentElement.getAttribute("data-immersive") === "true";
+  }
+
+  function setImmersive(active) {
+    document.documentElement.setAttribute("data-immersive", active ? "true" : "false");
+
+    if (fullscreenToggleBtn) {
+      fullscreenToggleBtn.setAttribute("aria-pressed", active ? "true" : "false");
+      var icon = fullscreenToggleBtn.querySelector(".fullscreen-icon");
+      var label = fullscreenToggleBtn.querySelector(".fullscreen-label");
+      var labelShort = fullscreenToggleBtn.querySelector(".fullscreen-label-short");
+      if (icon) { icon.innerHTML = active ? "&#10005;" : "&#9974;"; }
+      if (label) { label.textContent = active ? "Exit" : "Fullscreen"; }
+      if (labelShort) { labelShort.textContent = active ? "Exit" : "Full"; }
+    }
+
+    if (active) { closeReaderToolbar(); }
+  }
+
+  function toggleImmersive() {
+    var next = !isImmersive();
+    setImmersive(next);
+
+    // Best-effort native Fullscreen API too — purely additive, and
+    // failures (common on iOS Safari) are ignored since the CSS-driven
+    // distraction-free mode above is what actually drives the UI.
+    try {
+      var el = document.documentElement;
+      if (next) {
+        if (el.requestFullscreen) { el.requestFullscreen().catch(function () {}); }
+        else if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen(); }
+      } else {
+        if (document.fullscreenElement && document.exitFullscreen) { document.exitFullscreen().catch(function () {}); }
+        else if (document.webkitFullscreenElement && document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+      }
+    } catch (e) { /* Fullscreen API unavailable — ignore */ }
+  }
+
+  function initFullscreenToggle() {
+    if (!fullscreenToggleBtn) { return; }
+    fullscreenToggleBtn.addEventListener("click", toggleImmersive);
+
+    // If the user exits native fullscreen (Esc, browser chrome, etc.)
+    // while immersive mode is on, drop immersive mode too.
+    document.addEventListener("fullscreenchange", function () {
+      if (!document.fullscreenElement && isImmersive()) { setImmersive(false); }
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && isImmersive()) { setImmersive(false); }
+    });
+  }
+
+  /* ==========================================================
      Print / Copy the whole chapter
      ========================================================== */
 
@@ -1057,10 +1218,11 @@
 
   function copyWholeChapter() {
     var text = chapterPlainText();
-    if (!(navigator.clipboard && navigator.clipboard.writeText)) { return; }
-    navigator.clipboard.writeText(text).then(function () {
+    copyTextToClipboard(text).then(function () {
       flashChapterToolButton(copyChapterBtn, "&#10003;", "Copied");
-    }).catch(function () {});
+    }).catch(function () {
+      flashChapterToolButton(copyChapterBtn, "&#9888;", "Couldn't copy");
+    });
   }
 
   function flashChapterToolButton(btn, iconHtml, label) {
@@ -1097,6 +1259,7 @@
     initToolbarExtras();
     initChapterListModal();
     initMenuToggle();
+    initFullscreenToggle();
     initChapterTools();
     populateBookSelect(BOOKS_BY_SLUG[slug].testament);
     goTo(slug, chapter, verse, { push: false });
