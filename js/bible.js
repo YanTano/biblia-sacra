@@ -18,9 +18,20 @@
   var chapterSelect = document.getElementById("chapterSelect");
   var readingCard = document.getElementById("readingCard");
   var chapterNav = document.getElementById("chapterNav");
-  var chapterNavCurrent = document.getElementById("chapterNavCurrent");
   var prevChapterBtn = document.getElementById("prevChapterBtn");
   var nextChapterBtn = document.getElementById("nextChapterBtn");
+  var prevChapterLabel = document.getElementById("prevChapterLabel");
+  var nextChapterLabel = document.getElementById("nextChapterLabel");
+  var viewChapterListBtn = document.getElementById("viewChapterListBtn");
+  var chapterListModal = document.getElementById("chapterListModal");
+  var chapterListClose = document.getElementById("chapterListClose");
+  var chapterListGrid = document.getElementById("chapterListGrid");
+  var chapterListTitle = document.getElementById("chapterListTitle");
+
+  var menuToggleBtn = document.getElementById("menuToggleBtn");
+  var readerToolbarBar = document.getElementById("readerToolbarBar");
+  var printChapterBtn = document.getElementById("printChapterBtn");
+  var copyChapterBtn = document.getElementById("copyChapterBtn");
 
   var searchToggle = document.getElementById("searchToggle");
   var searchOverlay = document.getElementById("searchOverlay");
@@ -34,9 +45,13 @@
   var fontSizeLabel = document.getElementById("fontSizeLabel");
   var fontSizeSlider = document.getElementById("fontSizeSlider");
 
-  var themeToggleBtn = document.getElementById("themeToggleBtn");
+  var themeLightBtn = document.getElementById("themeLightBtn");
+  var themeDarkBtn = document.getElementById("themeDarkBtn");
   var chapterFavoriteBtn = document.getElementById("chapterFavoriteBtn");
+  var chapterNotesBtn = document.getElementById("chapterNotesBtn");
   var chapterShareBtn = document.getElementById("chapterShareBtn");
+  var notesMenuItem = document.getElementById("notesMenuItem");
+  var shareMenuItem = document.getElementById("shareMenuItem");
   var toolbarMoreBtn = document.getElementById("toolbarMoreBtn");
   var toolbarMoreMenu = document.getElementById("toolbarMoreMenu");
   var copyChapterLinkBtn = document.getElementById("copyChapterLinkBtn");
@@ -147,6 +162,8 @@
 
     if (chapter.summary) {
       html += '<div class="chapter-summary">';
+      html += '<span class="summary-icon" aria-hidden="true">&#128214;</span>';
+      html += '<div class="summary-copy">';
       html += '<span class="summary-label">Chapter Summary</span>';
       html += formatInline(chapter.summary);
       if (chapter.summary_notes && chapter.summary_notes.length) {
@@ -156,7 +173,8 @@
         });
         html += "</div>";
       }
-      html += "</div>";
+      html += "</div>"; // summary-copy
+      html += "</div>"; // chapter-summary
     }
 
     html += '<div class="verses" id="versesList">';
@@ -166,7 +184,7 @@
       html += '<span class="verse-num">' + v.verse + "</span>";
       html += '<div class="verse-body">';
       html += '<span class="verse-text">' + formatInline(v.text);
-      if (hasNotes) { html += '<span class="note-flag" title="Notes available">&#10052;</span>'; }
+      if (hasNotes) { html += '<span class="note-flag" title="Notes available">&#10047;</span>'; }
       html += "</span>";
 
       html += '<div class="verse-actions">';
@@ -401,8 +419,6 @@
      ========================================================== */
 
   function updateChapterNavUI(slug, bookData, chapterNum, meta) {
-    chapterNavCurrent.textContent = (meta ? meta.name : slug) + " " + chapterNum;
-
     var atFirstChapter = chapterNum <= 1;
     var atLastChapter = chapterNum >= bookData.chapters.length;
     var bookIdx = meta ? meta.index : -1;
@@ -411,6 +427,80 @@
 
     prevChapterBtn.disabled = atFirstChapter && atFirstBook;
     nextChapterBtn.disabled = atLastChapter && atLastBook;
+
+    if (prevChapterLabel) {
+      if (!prevChapterBtn.disabled) {
+        if (!atFirstChapter) {
+          prevChapterLabel.textContent = (meta ? meta.name : slug) + " " + (chapterNum - 1);
+        } else {
+          var prevMeta = BIBLE_BOOKS[bookIdx - 1];
+          prevChapterLabel.textContent = prevMeta ? prevMeta.name : "";
+        }
+      } else {
+        prevChapterLabel.textContent = "";
+      }
+    }
+
+    if (nextChapterLabel) {
+      if (!nextChapterBtn.disabled) {
+        if (!atLastChapter) {
+          nextChapterLabel.textContent = (meta ? meta.name : slug) + " " + (chapterNum + 1);
+        } else {
+          var nextMeta = BIBLE_BOOKS[bookIdx + 1];
+          nextChapterLabel.textContent = nextMeta ? nextMeta.name + " 1" : "";
+        }
+      } else {
+        nextChapterLabel.textContent = "";
+      }
+    }
+
+    if (chapterListTitle) {
+      chapterListTitle.textContent = (meta ? meta.name : slug) + " \u2014 Chapters";
+    }
+    populateChapterListGrid(bookData.chapters.length, chapterNum);
+  }
+
+  /* ---------------- "View Chapter List" quick-jump modal ---------------- */
+
+  function populateChapterListGrid(count, current) {
+    if (!chapterListGrid) { return; }
+    var html = "";
+    for (var i = 1; i <= count; i++) {
+      html += '<button class="chapter-list-item' + (i === current ? " is-current" : "") +
+        '" type="button" data-chapter="' + i + '">' + i + "</button>";
+    }
+    chapterListGrid.innerHTML = html;
+  }
+
+  function openChapterList() {
+    if (!chapterListModal) { return; }
+    chapterListModal.classList.add("is-open");
+    if (viewChapterListBtn) { viewChapterListBtn.setAttribute("aria-expanded", "true"); }
+  }
+
+  function closeChapterList() {
+    if (!chapterListModal) { return; }
+    chapterListModal.classList.remove("is-open");
+    if (viewChapterListBtn) { viewChapterListBtn.setAttribute("aria-expanded", "false"); }
+  }
+
+  function initChapterListModal() {
+    if (viewChapterListBtn) { viewChapterListBtn.addEventListener("click", openChapterList); }
+    if (chapterListClose) { chapterListClose.addEventListener("click", closeChapterList); }
+    if (chapterListModal) {
+      chapterListModal.addEventListener("click", function (e) {
+        if (e.target === chapterListModal) { closeChapterList(); }
+      });
+      chapterListGrid.addEventListener("click", function (e) {
+        var btn = e.target.closest(".chapter-list-item");
+        if (!btn) { return; }
+        closeChapterList();
+        goTo(state.book, parseInt(btn.getAttribute("data-chapter"), 10), null, { push: true });
+      });
+    }
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { closeChapterList(); }
+    });
   }
 
   function goPrevChapter() {
@@ -681,8 +771,7 @@
     if (fontResetBtn) {
       fontResetBtn.addEventListener("click", function () {
         currentScale = applyFontScale(1);
-        closeMoreMenu();
-        flashMenuItem(fontResetBtn, "Reset");
+        flashSimpleButton(fontResetBtn, "Reset");
       });
     }
     if (fontSizeSlider) {
@@ -714,10 +803,8 @@
     } else {
       document.documentElement.removeAttribute("data-reader-theme");
     }
-    if (themeToggleBtn) {
-      themeToggleBtn.setAttribute("aria-pressed", String(isDark));
-      themeToggleBtn.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
-    }
+    if (themeLightBtn) { themeLightBtn.setAttribute("aria-pressed", String(!isDark)); }
+    if (themeDarkBtn) { themeDarkBtn.setAttribute("aria-pressed", String(isDark)); }
     try {
       window.localStorage.setItem(READER_THEME_KEY, isDark ? "dark" : "light");
     } catch (e) { /* storage unavailable, ignore */ }
@@ -725,11 +812,11 @@
 
   function initThemeToggle() {
     applyReaderTheme(getSavedReaderTheme());
-    if (themeToggleBtn) {
-      themeToggleBtn.addEventListener("click", function () {
-        var isDark = document.documentElement.getAttribute("data-reader-theme") === "dark";
-        applyReaderTheme(isDark ? "light" : "dark");
-      });
+    if (themeLightBtn) {
+      themeLightBtn.addEventListener("click", function () { applyReaderTheme("light"); });
+    }
+    if (themeDarkBtn) {
+      themeDarkBtn.addEventListener("click", function () { applyReaderTheme("dark"); });
     }
   }
 
@@ -764,7 +851,7 @@
     var marked = getFavorites().some(function (f) { return f.id === id; });
     chapterFavoriteBtn.classList.toggle("is-favorited", marked);
     chapterFavoriteBtn.setAttribute("aria-pressed", String(marked));
-    chapterFavoriteBtn.innerHTML = '<span aria-hidden="true">' + (marked ? "&#9829;" : "&#9825;") + "</span>";
+    chapterFavoriteBtn.innerHTML = '<span aria-hidden="true">' + (marked ? "&#9733;" : "&#9734;") + '</span><span class="pill-label">' + (marked ? "Bookmarked" : "Bookmark") + "</span>";
     chapterFavoriteBtn.setAttribute(
       "aria-label",
       (marked ? "Remove " : "Add ") + "this chapter " + (marked ? "from" : "to") + " favorites"
@@ -817,10 +904,24 @@
     var url = currentChapterUrl().toString();
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(function () {
-        flashMenuItem(copyChapterLinkBtn, "Link copied");
-        closeMoreMenu();
+        flashChapterToolButton(copyChapterLinkBtn, "&#10003;", "Link copied");
       }).catch(function () {});
     }
+  }
+
+  /* ---------------- Chapter notes toggle ---------------- */
+
+  function refreshNotesButtonState(isOpen) {
+    if (chapterNotesBtn) {
+      chapterNotesBtn.classList.toggle("is-active", isOpen);
+      chapterNotesBtn.setAttribute("aria-pressed", String(isOpen));
+    }
+  }
+
+  function toggleAllNotes() {
+    if (!readingCard) { return; }
+    var isOpen = readingCard.classList.toggle("show-all-notes");
+    refreshNotesButtonState(isOpen);
   }
 
   function flashIconButton(btn, html) {
@@ -839,6 +940,10 @@
       btn.textContent = original;
       btn.classList.remove("is-confirmed");
     }, 1400);
+  }
+
+  function flashSimpleButton(btn, message) {
+    flashMenuItem(btn, message);
   }
 
   function openMoreMenu() {
@@ -860,6 +965,21 @@
     if (chapterShareBtn) {
       chapterShareBtn.addEventListener("click", shareChapter);
     }
+    if (chapterNotesBtn) {
+      chapterNotesBtn.addEventListener("click", toggleAllNotes);
+    }
+    if (notesMenuItem) {
+      notesMenuItem.addEventListener("click", function () {
+        toggleAllNotes();
+        closeMoreMenu();
+      });
+    }
+    if (shareMenuItem) {
+      shareMenuItem.addEventListener("click", function () {
+        shareChapter();
+        closeMoreMenu();
+      });
+    }
     if (copyChapterLinkBtn) {
       copyChapterLinkBtn.addEventListener("click", copyChapterLink);
     }
@@ -879,6 +999,87 @@
   }
 
   /* ==========================================================
+     Menu toggle (shows / hides the reader-toolbar-bar)
+     ========================================================== */
+
+  function isToolbarOpen() {
+    return !!readerToolbarBar && !readerToolbarBar.hidden;
+  }
+
+  function openReaderToolbar() {
+    if (!readerToolbarBar) { return; }
+    readerToolbarBar.hidden = false;
+    if (menuToggleBtn) { menuToggleBtn.setAttribute("aria-expanded", "true"); }
+  }
+
+  function closeReaderToolbar() {
+    if (!readerToolbarBar) { return; }
+    readerToolbarBar.hidden = true;
+    if (menuToggleBtn) { menuToggleBtn.setAttribute("aria-expanded", "false"); }
+    closeMoreMenu();
+  }
+
+  function toggleReaderToolbar() {
+    if (isToolbarOpen()) { closeReaderToolbar(); } else { openReaderToolbar(); }
+  }
+
+  function initMenuToggle() {
+    if (!menuToggleBtn) { return; }
+    menuToggleBtn.addEventListener("click", toggleReaderToolbar);
+  }
+
+  /* ==========================================================
+     Print / Copy the whole chapter
+     ========================================================== */
+
+  function currentChapterHeading() {
+    var meta = BOOKS_BY_SLUG[state.book];
+    return (meta ? meta.name : state.book) + " " + state.chapter;
+  }
+
+  function chapterPlainText() {
+    var data = bookCache.get(state.book);
+    if (!data) { return currentChapterHeading(); }
+    var chapter = data.chapters.filter(function (c) { return c.chapter === state.chapter; })[0];
+    if (!chapter) { return currentChapterHeading(); }
+
+    var lines = [currentChapterHeading(), ""];
+    (chapter.verses || []).forEach(function (v) {
+      lines.push(v.verse + ". " + plainText(v.text));
+    });
+    return lines.join("\n");
+  }
+
+  function printChapter() {
+    if (isToolbarOpen()) { closeMoreMenu(); }
+    window.print();
+  }
+
+  function copyWholeChapter() {
+    var text = chapterPlainText();
+    if (!(navigator.clipboard && navigator.clipboard.writeText)) { return; }
+    navigator.clipboard.writeText(text).then(function () {
+      flashChapterToolButton(copyChapterBtn, "&#10003;", "Copied");
+    }).catch(function () {});
+  }
+
+  function flashChapterToolButton(btn, iconHtml, label) {
+    if (!btn) { return; }
+    var original = btn.innerHTML;
+    btn.classList.add("is-confirmed");
+    btn.innerHTML = '<span aria-hidden="true">' + iconHtml + '</span><span class="more-item-label">' + label + "</span>";
+    setTimeout(function () {
+      btn.classList.remove("is-confirmed");
+      btn.innerHTML = original;
+    }, 1600);
+  }
+
+  function initChapterTools() {
+    if (printChapterBtn) { printChapterBtn.addEventListener("click", printChapter); }
+    if (copyChapterBtn) { copyChapterBtn.addEventListener("click", copyWholeChapter); }
+  }
+
+  /* ==========================================================
      Init
      ========================================================== */
 
@@ -894,6 +1095,9 @@
     initFontSizeControl();
     initThemeToggle();
     initToolbarExtras();
+    initChapterListModal();
+    initMenuToggle();
+    initChapterTools();
     populateBookSelect(BOOKS_BY_SLUG[slug].testament);
     goTo(slug, chapter, verse, { push: false });
   }

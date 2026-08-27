@@ -27,75 +27,96 @@
 
 <a class="skip-link" href="#readerMain">Skip to Scripture</a>
 
-<header class="reader-header">
-  <div class="reader-header-inner">
-    <a class="back-link" href="index.html">
-      <span class="back-arrow" aria-hidden="true">&#8592;</span>
-      <span class="back-label">Back to Homepage</span>
-    </a>
+<div class="reader-topbars" id="readerTopbars">
+  <header class="reader-header">
+    <div class="reader-header-inner">
+      <div class="reader-header-left">
+        <a class="back-link" href="index.html">
+          <span class="back-arrow" aria-hidden="true">&lt;</span>
+          <span class="back-label">Back</span>
+        </a>
 
-    <div class="reader-brand">
-      <span class="reader-brand-name">Biblia Sacra</span>
-      <span class="reader-brand-tag">Holy Scripture</span>
+        <div class="reader-brand">
+          <span class="reader-brand-badge" aria-hidden="true">&#10013;</span>
+          <span class="reader-brand-text">
+            <span class="reader-brand-name">Biblia Sacra</span>
+            <span class="reader-brand-tag">Holy Scripture</span>
+          </span>
+        </div>
+      </div>
+
+      <nav class="reader-select-group" aria-label="Book and chapter">
+        <select class="control-select" id="testamentSelect" aria-label="Testament">
+          <option value="ot">Old Testament</option>
+          <option value="nt">New Testament</option>
+        </select>
+
+        <select class="control-select" id="bookSelect" aria-label="Book"></select>
+
+        <select class="control-select" id="chapterSelect" aria-label="Chapter"></select>
+      </nav>
+
+      <div class="reader-header-actions">
+        <button class="search-toggle" id="searchToggle" type="button" aria-haspopup="dialog" aria-controls="searchOverlay">
+          <span aria-hidden="true">&#128269;</span>
+          <span class="search-label">Search</span>
+        </button>
+
+        <button class="menu-toggle" id="menuToggleBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="readerToolbarBar">
+          <span aria-hidden="true">&#9776;</span>
+          <span class="menu-label">Menu</span>
+        </button>
+      </div>
     </div>
+  </header>
 
-    <button class="search-toggle" id="searchToggle" type="button" aria-haspopup="dialog" aria-controls="searchOverlay">
-      <span aria-hidden="true">&#128269;</span>
-      <span class="search-label">Search</span>
-    </button>
-  </div>
-</header>
+  <div class="reader-toolbar-bar" id="readerToolbarBar" hidden>
+    <div class="reader-toolbar-inner" role="group" aria-label="Reading tools">
 
-<nav class="reader-controls" aria-label="Book and chapter">
-  <select class="control-select" id="testamentSelect" aria-label="Testament">
-    <option value="ot">Old Testament</option>
-    <option value="nt">New Testament</option>
-  </select>
+      <div class="theme-segmented" role="group" aria-label="Reading theme">
+        <button class="theme-segmented-btn" id="themeLightBtn" type="button" aria-pressed="true">
+          <span aria-hidden="true">&#9728;</span><span class="segmented-label">Light</span>
+        </button>
+        <button class="theme-segmented-btn" id="themeDarkBtn" type="button" aria-pressed="false">
+          <span aria-hidden="true">&#9790;</span><span class="segmented-label">Dark</span>
+        </button>
+      </div>
 
-  <select class="control-select" id="bookSelect" aria-label="Book"></select>
+      <div class="font-size-control" role="group" aria-label="Adjust text size">
+        <button class="font-size-btn" id="fontDecreaseBtn" type="button" aria-label="Decrease text size">A&#8722;</button>
+        <input class="font-size-slider" id="fontSizeSlider" type="range" min="0" max="8" step="1" value="1"
+               aria-label="Text size" aria-valuetext="100%">
+        <button class="font-size-btn" id="fontIncreaseBtn" type="button" aria-label="Increase text size">A&#43;</button>
+        <span class="font-size-label" id="fontSizeLabel">100%</span>
+        <button class="font-size-reset-btn" id="fontResetBtn" type="button">Reset</button>
+      </div>
 
-  <select class="control-select" id="chapterSelect" aria-label="Chapter"></select>
-
-  <div class="reading-toolbar" role="group" aria-label="Reading tools">
-
-    <div class="font-size-control" role="group" aria-label="Adjust text size">
-      <button class="font-size-btn" id="fontDecreaseBtn" type="button" aria-label="Decrease text size">A&#8722;</button>
-      <input class="font-size-slider" id="fontSizeSlider" type="range" min="0" max="8" step="1" value="1"
-             aria-label="Text size" aria-valuetext="100%">
-      <button class="font-size-btn" id="fontIncreaseBtn" type="button" aria-label="Increase text size">A&#43;</button>
-      <span class="font-size-label" id="fontSizeLabel">100%</span>
-    </div>
-
-    <div class="toolbar-icon-group">
-      <span class="toolbar-divider" aria-hidden="true"></span>
-
-      <button class="toolbar-icon-btn theme-toggle-btn" id="themeToggleBtn" type="button" aria-pressed="false" aria-label="Switch to dark mode">
-        <span class="theme-icon icon-sun" aria-hidden="true">&#9728;</span>
-        <span class="theme-icon icon-moon" aria-hidden="true">&#9790;</span>
-      </button>
-
-      <span class="toolbar-divider" aria-hidden="true"></span>
-
-      <button class="toolbar-icon-btn" id="chapterFavoriteBtn" type="button" aria-pressed="false" aria-label="Add this chapter to favorites">
-        <span aria-hidden="true">&#9825;</span>
-      </button>
-      <button class="toolbar-icon-btn" id="chapterShareBtn" type="button" aria-label="Share this chapter">
-        <span aria-hidden="true">&#8599;</span>
-      </button>
-
-      <div class="toolbar-more">
+      <div class="toolbar-more" id="toolbarMore">
         <button class="toolbar-icon-btn" id="toolbarMoreBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="More reading options">
           <span aria-hidden="true">&#8943;</span>
         </button>
         <div class="toolbar-more-menu" id="toolbarMoreMenu" role="menu" hidden>
-          <button class="toolbar-more-item" id="fontResetBtn" type="button" role="menuitem">Reset text size</button>
-          <button class="toolbar-more-item" id="copyChapterLinkBtn" type="button" role="menuitem">Copy chapter link</button>
+          <button class="toolbar-more-item" id="notesMenuItem" type="button" role="menuitem">
+            <span aria-hidden="true">&#128214;</span><span class="more-item-label">Notes</span>
+          </button>
+          <button class="toolbar-more-item" id="printChapterBtn" type="button" role="menuitem">
+            <span aria-hidden="true">&#128424;</span><span class="more-item-label">Print</span>
+          </button>
+          <button class="toolbar-more-item" id="copyChapterBtn" type="button" role="menuitem">
+            <span aria-hidden="true">&#128203;</span><span class="more-item-label">Copy Chapter</span>
+          </button>
+          <button class="toolbar-more-item" id="shareMenuItem" type="button" role="menuitem">
+            <span aria-hidden="true">&#128279;</span><span class="more-item-label">Share this chapter</span>
+          </button>
+          <button class="toolbar-more-item" id="copyChapterLinkBtn" type="button" role="menuitem">
+            <span aria-hidden="true">&#128279;</span><span class="more-item-label">Copy chapter link</span>
+          </button>
         </div>
       </div>
-    </div>
 
+    </div>
   </div>
-</nav>
+</div>
 
 <main id="readerMain" class="reader-main">
   <div class="reading-card" id="readingCard">
@@ -106,17 +127,40 @@
   </div>
 
   <div class="chapter-nav" id="chapterNav" hidden>
-    <button class="chapter-nav-btn prev" id="prevChapterBtn" type="button">
-      <span aria-hidden="true">&#8592;</span>
-      <span class="nav-label-full">Previous Chapter</span>
-    </button>
-    <span class="chapter-nav-current" id="chapterNavCurrent"></span>
-    <button class="chapter-nav-btn next" id="nextChapterBtn" type="button">
-      <span class="nav-label-full">Next Chapter</span>
-      <span aria-hidden="true">&#8594;</span>
-    </button>
+    <div class="chapter-nav-inner">
+      <button class="chapter-nav-btn prev" id="prevChapterBtn" type="button">
+        <span class="nav-btn-icon" aria-hidden="true">&#8592;</span>
+        <span class="nav-btn-text">
+          <span class="nav-label-full">Previous Chapter</span>
+          <span class="nav-label-ref" id="prevChapterLabel"></span>
+        </span>
+      </button>
+
+      <button class="chapter-nav-btn list" id="viewChapterListBtn" type="button" aria-haspopup="dialog" aria-controls="chapterListModal">
+        <span class="nav-btn-icon" aria-hidden="true">&#128214;</span>
+        <span class="nav-label-full">View Chapter List</span>
+      </button>
+
+      <button class="chapter-nav-btn next" id="nextChapterBtn" type="button">
+        <span class="nav-btn-text">
+          <span class="nav-label-full">Next Chapter</span>
+          <span class="nav-label-ref" id="nextChapterLabel"></span>
+        </span>
+        <span class="nav-btn-icon" aria-hidden="true">&#8594;</span>
+      </button>
+    </div>
   </div>
 </main>
+
+<div class="chapter-list-overlay" id="chapterListModal" role="dialog" aria-modal="true" aria-label="Jump to chapter">
+  <div class="chapter-list-panel">
+    <div class="chapter-list-header">
+      <span class="chapter-list-title" id="chapterListTitle">Chapters</span>
+      <button class="search-close" id="chapterListClose" type="button" aria-label="Close chapter list">&times;</button>
+    </div>
+    <div class="chapter-list-grid" id="chapterListGrid"></div>
+  </div>
+</div>
 
 <div class="search-overlay" id="searchOverlay" role="dialog" aria-modal="true" aria-label="Search the Bible">
   <div class="search-panel">
