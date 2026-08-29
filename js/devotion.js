@@ -210,8 +210,6 @@
     }
   ];
 
-  var FAVORITES_KEY = "bibliaSacraFavoriteDevotions";
-
   /* ==========================================================
      Date helpers
      ========================================================== */
@@ -313,22 +311,20 @@
   var actionTextEl = document.getElementById("actionText");
   var relatedGridEl = document.getElementById("relatedGrid");
 
-  var favoriteBtn = document.getElementById("favoriteBtn");
   var shareBtn = document.getElementById("shareBtn");
-  var copyVerseBtn = document.getElementById("copyVerseBtn");
+  var copyAllBtn = document.getElementById("copyAllBtn");
   var verseCardCopyBtn = document.getElementById("verseCardCopyBtn");
   var printBtn = document.getElementById("printBtn");
   var toolbarStatus = document.getElementById("toolbarStatus");
 
   var fontDecreaseBtn = document.getElementById("fontDecreaseBtn");
   var fontIncreaseBtn = document.getElementById("fontIncreaseBtn");
+  var resetFontBtn = document.getElementById("resetFontBtn");
   var fontSizeSlider = document.getElementById("fontSizeSlider");
   var fontSizeLabel = document.getElementById("fontSizeLabel");
   var devotionContainerEl = document.querySelector(".devotion-container");
 
-  var moreBtn = document.getElementById("moreBtn");
-  var moreMenu = document.getElementById("moreMenu");
-  var devotionMore = document.getElementById("devotionMore");
+  var radialMenuToggle = document.getElementById("radialMenuToggle");
 
   var prevDevotionBtn = document.getElementById("prevDevotionBtn");
   var todayDevotionBtn = document.getElementById("todayDevotionBtn");
@@ -364,53 +360,6 @@
     toolbarStatus.textContent = message;
     if (statusTimer) { clearTimeout(statusTimer); }
     statusTimer = setTimeout(function () { toolbarStatus.textContent = ""; }, 4000);
-  }
-
-  /* ==========================================================
-     Favorites (localStorage)
-     ========================================================== */
-
-  function loadFavorites() {
-    try {
-      var raw = window.localStorage.getItem(FAVORITES_KEY);
-      var parsed = raw ? JSON.parse(raw) : [];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      return [];
-    }
-  }
-
-  function saveFavorites(list) {
-    try {
-      window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(list));
-    } catch (e) { /* storage unavailable, ignore */ }
-  }
-
-  function isFavorited(key) {
-    return loadFavorites().indexOf(key) !== -1;
-  }
-
-  function toggleFavorite(key) {
-    var list = loadFavorites();
-    var idx = list.indexOf(key);
-    if (idx === -1) {
-      list.push(key);
-      saveFavorites(list);
-      return true;
-    }
-    list.splice(idx, 1);
-    saveFavorites(list);
-    return false;
-  }
-
-  function updateFavoriteButton() {
-    var key = toDateKey(viewedDate);
-    var active = isFavorited(key);
-    favoriteBtn.setAttribute("aria-pressed", active ? "true" : "false");
-    favoriteBtn.querySelector(".toolbar-icon-glyph").innerHTML = active ? "&#9829;" : "&#9825;";
-    var label = active ? "Remove this devotion from favorites" : "Save this devotion to favorites";
-    favoriteBtn.setAttribute("aria-label", label);
-    favoriteBtn.setAttribute("title", active ? "Saved" : "Save");
   }
 
   /* ==========================================================
@@ -455,8 +404,6 @@
         "</a>";
     }).join("");
 
-    updateFavoriteButton();
-
     var isToday = toDateKey(viewedDate) === toDateKey(today);
     nextDevotionBtn.disabled = isToday;
     todayDevotionBtn.disabled = isToday;
@@ -499,18 +446,15 @@
   }, 60000);
 
   /* ==========================================================
-     Favorite button
+     Radial menu helpers
      ========================================================== */
 
-  favoriteBtn.addEventListener("click", function () {
-    var key = toDateKey(viewedDate);
-    var active = toggleFavorite(key);
-    updateFavoriteButton();
-    announce(active ? "Devotion saved to your favorites." : "Removed from favorites.");
-  });
+  function closeRadialMenu() {
+    if (radialMenuToggle) { radialMenuToggle.checked = false; }
+  }
 
   /* ==========================================================
-     Copy verse
+     Copy verse / copy all
      ========================================================== */
 
   function copyText(text) {
@@ -535,10 +479,12 @@
     });
   }
 
-  copyVerseBtn.addEventListener("click", function () {
-    copyVerseToClipboard();
-    closeMoreMenu();
-  });
+  if (copyAllBtn) {
+    copyAllBtn.addEventListener("click", function () {
+      copyAllToClipboard();
+      closeRadialMenu();
+    });
+  }
 
   if (verseCardCopyBtn) {
     verseCardCopyBtn.addEventListener("click", function () {
@@ -555,6 +501,35 @@
     });
   }
 
+  function copyAllToClipboard() {
+    var dev = currentDevotion;
+    var lines = [];
+    lines.push(dev.title);
+    lines.push("");
+    lines.push("\u201c" + dev.verse + "\u201d \u2014 " + dev.scriptureReference + " (" + dev.translation + ")");
+    lines.push("");
+    lines.push("Today's Reading: " + dev.reading.reference);
+    lines.push(dev.reading.summary);
+    lines.push("");
+    lines.push("Reflection:");
+    dev.reflection.forEach(function (p) { lines.push(p); });
+    lines.push("");
+    lines.push("Key Takeaway: " + dev.takeaway);
+    lines.push("");
+    lines.push("Prayer: " + dev.prayer);
+    lines.push("");
+    lines.push("Reflect:");
+    dev.questions.forEach(function (q, i) { lines.push((i + 1) + ". " + q); });
+    lines.push("");
+    lines.push("Today's Action: " + dev.action);
+    var text = lines.join("\n");
+    copyText(text).then(function () {
+      announce("Devotion copied to clipboard.");
+    }).catch(function () {
+      announce("Could not copy automatically \u2014 please copy the text manually.");
+    });
+  }
+
   /* ==========================================================
      Share
      ========================================================== */
@@ -567,6 +542,7 @@
     };
     if (navigator.share) {
       navigator.share(shareData).catch(function () { /* user cancelled, ignore */ });
+      closeRadialMenu();
       return;
     }
     copyText(shareData.text + "\n" + shareData.url).then(function () {
@@ -574,6 +550,7 @@
     }).catch(function () {
       announce("Could not share or copy automatically.");
     });
+    closeRadialMenu();
   });
 
   /* ==========================================================
@@ -582,36 +559,11 @@
 
   printBtn.addEventListener("click", function () {
     window.print();
-    closeMoreMenu();
-  });
-
-  /* ==========================================================
-     More menu (Copy Verse + Print)
-     ========================================================== */
-
-  function openMoreMenu() {
-    moreMenu.hidden = false;
-    moreBtn.setAttribute("aria-expanded", "true");
-  }
-
-  function closeMoreMenu() {
-    moreMenu.hidden = true;
-    moreBtn.setAttribute("aria-expanded", "false");
-  }
-
-  moreBtn.addEventListener("click", function (e) {
-    e.stopPropagation();
-    if (moreMenu.hidden) { openMoreMenu(); } else { closeMoreMenu(); }
-  });
-
-  document.addEventListener("click", function (e) {
-    if (devotionMore && !devotionMore.contains(e.target)) {
-      closeMoreMenu();
-    }
+    closeRadialMenu();
   });
 
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") { closeMoreMenu(); }
+    if (e.key === "Escape") { closeRadialMenu(); }
   });
 
   /* ==========================================================
@@ -658,6 +610,13 @@
   }
   if (fontIncreaseBtn) {
     fontIncreaseBtn.addEventListener("click", function () { applyFontStep(fontStepIndex + 1); });
+  }
+  if (resetFontBtn) {
+    resetFontBtn.addEventListener("click", function () {
+      applyFontStep(2);
+      closeRadialMenu();
+      announce("Text size reset to default.");
+    });
   }
   if (fontSizeSlider) {
     fontSizeSlider.addEventListener("input", function () {

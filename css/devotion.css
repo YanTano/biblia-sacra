@@ -244,193 +244,296 @@ body{ background: var(--cloud); }
 .devotion-toolbar{
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 16px;
   flex-wrap: wrap;
-  background: var(--white);
-  border: 1px solid rgba(223,175,69,0.35);
-  border-radius: var(--radius-md);
-  padding: 6px 10px;
-  box-shadow: 0 6px 16px rgba(23,74,115,0.06);
+  background: transparent;
+  border: none;
+  padding: 6px 4px;
+  box-shadow: none;
   margin-top: -28px;
   position: relative;
-  z-index: 2;
+  z-index: 5;
 }
-
-.toolbar-divider{
-  width: 1px;
-  height: 26px;
-  flex-shrink: 0;
-  background: rgba(223,175,69,0.35);
-}
-
-.toolbar-icon-group{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* ---- Font size control ---- */
-
-.font-size-control{
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 2px 2px 2px 0;
-}
-
-.font-size-btn{
-  font-family: var(--sans);
-  font-weight: 700;
-  font-size: 1.05rem;
-  line-height: 1;
-  color: var(--deep-blue);
-  background: var(--cloud);
-  border: 1px solid rgba(223,175,69,0.3);
-  border-radius: 8px;
-  width: 38px;
-  height: 38px;
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-.font-size-btn:hover{ background: rgba(223,175,69,0.18); }
-.font-size-btn:active{ transform: scale(0.95); }
-.font-size-btn:disabled{ opacity: 0.4; cursor: not-allowed; }
-
-.font-size-slider{
-  -webkit-appearance: none;
-  appearance: none;
-  width: 108px;
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(223,175,69,0.25);
-  accent-color: var(--gold);
-  cursor: pointer;
-}
-.font-size-slider::-webkit-slider-thumb{
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--deep-blue);
-  border: 2px solid var(--white);
-  box-shadow: 0 2px 6px rgba(23,74,115,0.35);
-  cursor: pointer;
-  margin-top: -7px;
-}
-.font-size-slider::-moz-range-track{
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(223,175,69,0.25);
-}
-.font-size-slider::-moz-range-progress{
-  height: 4px;
-  border-radius: 999px;
-  background: var(--gold);
-}
-.font-size-slider::-moz-range-thumb{
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--deep-blue);
-  border: 2px solid var(--white);
-  box-shadow: 0 2px 6px rgba(23,74,115,0.35);
-  cursor: pointer;
-}
-.font-size-slider:focus-visible{ outline: 2px solid var(--gold); outline-offset: 3px; }
-
-.font-size-label{
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: 0.78rem;
-  color: var(--text-soft);
-  min-width: 3.6em;
-  text-align: center;
-}
-
-/* ---- Icon buttons (favorite / share / more) ---- */
-
-.toolbar-icon-btn{
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  flex-shrink: 0;
-  font-size: 1.08rem;
-  line-height: 1;
-  color: var(--deep-blue);
-  background: var(--cloud);
-  border: 1px solid rgba(223,175,69,0.3);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
-}
-.toolbar-icon-btn:hover{ background: rgba(223,175,69,0.18); }
-.toolbar-icon-btn:active{ transform: scale(0.94); }
 
 .toolbar-icon-glyph{ display: inline-block; line-height: 1; }
 
-#favoriteBtn[aria-pressed="true"]{ background: var(--gold); border-color: var(--gold); color: var(--white); }
+/* ---- Uiverse.io by JkHuger — radial menu, wired to devotion.js ---- */
 
-/* ---- "More" dropdown ---- */
+.radial-menu-wrap{
+  position: relative;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
 
-.toolbar-more{ position: relative; }
-
-.toolbar-more-menu{
+/* From Uiverse.io by JkHuger */
+.menu-item,
+.menu-open-button {
+  background: #EEEEEE;
+  border-radius: 100%;
+  width: 80px;
+  height: 80px;
+  margin-left: -40px;
   position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 20;
-  min-width: 190px;
-  background: var(--white);
-  border: 1px solid rgba(223,175,69,0.3);
-  border-radius: var(--radius-md);
-  box-shadow: 0 14px 34px rgba(23,74,115,0.18);
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  color: #FFFFFF;
+  text-align: center;
+  line-height: 80px;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-transition: -webkit-transform ease-out 200ms;
+  transition: -webkit-transform ease-out 200ms;
+  transition: transform ease-out 200ms;
 }
-.toolbar-more-menu[hidden]{ display: none; }
 
-.toolbar-more-item{
-  font-family: var(--sans);
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: var(--deep-blue);
-  background: none;
-  border: none;
-  border-radius: 8px;
-  text-align: left;
-  padding: 9px 10px;
+.menu-open {
+  display: none;
+}
+
+/* Override: pin every circle to the exact center of .menu (was relying on
+   implicit "static position" centering, which only works in a full-page
+   overlay context — it skews once the component sits inside our toolbar). */
+.menu-item,
+.menu-open-button {
+  top: 50%;
+  left: 50%;
+  margin: -40px 0 0 -40px;
+}
+
+.lines {
+  width: 25px;
+  height: 3px;
+  background: #596778;
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -12.5px;
+  margin-top: -1.5px;
+  -webkit-transition: -webkit-transform 200ms;
+  transition: -webkit-transform 200ms;
+  transition: transform 200ms;
+}
+
+.line-1 {
+  -webkit-transform: translate3d(0, -8px, 0);
+  transform: translate3d(0, -8px, 0);
+}
+
+.line-2 {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+
+.line-3 {
+  -webkit-transform: translate3d(0, 8px, 0);
+  transform: translate3d(0, 8px, 0);
+}
+
+.menu-open:checked + .menu-open-button .line-1 {
+  -webkit-transform: translate3d(0, 0, 0) rotate(45deg);
+  transform: translate3d(0, 0, 0) rotate(45deg);
+}
+
+.menu-open:checked + .menu-open-button .line-2 {
+  -webkit-transform: translate3d(0, 0, 0) scale(0.1, 1);
+  transform: translate3d(0, 0, 0) scale(0.1, 1);
+}
+
+.menu-open:checked + .menu-open-button .line-3 {
+  -webkit-transform: translate3d(0, 0, 0) rotate(-45deg);
+  transform: translate3d(0, 0, 0) rotate(-45deg);
+}
+
+.menu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  height: 80px;
+  text-align: center;
+  box-sizing: border-box;
+  font-size: 26px;
+  -webkit-transform: scale(0.6);
+  transform: scale(0.6);
+  transform-origin: top left;
+}
+
+.menu-item:hover {
+  background: #EEEEEE;
+  color: #3290B1;
+}
+
+.menu-item:nth-child(3),
+.menu-item:nth-child(4),
+.menu-item:nth-child(5),
+.menu-item:nth-child(6),
+.menu-item:nth-child(7),
+.menu-item:nth-child(8) {
+  -webkit-transition-duration: 180ms;
+  transition-duration: 180ms;
+}
+
+.menu-open-button {
+  z-index: 2;
+  -webkit-transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  -webkit-transition-duration: 400ms;
+  transition-duration: 400ms;
+  -webkit-transform: scale(1.1, 1.1) translate3d(0, 0, 0);
+  transform: scale(1.1, 1.1) translate3d(0, 0, 0);
   cursor: pointer;
-  transition: background 0.18s ease;
+  box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.14);
 }
-.toolbar-more-item:hover{ background: rgba(223,175,69,0.15); }
 
-.devotion-toolbar-status{
-  margin: 0 0 0 auto;
+.menu-open-button:hover {
+  -webkit-transform: scale(1.2, 1.2) translate3d(0, 0, 0);
+  transform: scale(1.2, 1.2) translate3d(0, 0, 0);
+}
+
+.menu-open:checked + .menu-open-button {
+  -webkit-transition-timing-function: linear;
+  transition-timing-function: linear;
+  -webkit-transition-duration: 200ms;
+  transition-duration: 200ms;
+  -webkit-transform: scale(0.8, 0.8) translate3d(0, 0, 0);
+  transform: scale(0.8, 0.8) translate3d(0, 0, 0);
+}
+
+.menu-open:checked ~ .menu-item {
+  -webkit-transition-timing-function: cubic-bezier(0.935, 0, 0.34, 1.33);
+  transition-timing-function: cubic-bezier(0.935, 0, 0.34, 1.33);
+}
+
+.menu-open:checked ~ .menu-item:nth-child(3) {
+  transition-duration: 180ms;
+  -webkit-transition-duration: 180ms;
+  -webkit-transform: translate3d(0.08361px, -104.99997px, 0);
+  transform: translate3d(0.08361px, -104.99997px, 0);
+}
+
+.menu-open:checked ~ .menu-item:nth-child(4) {
+  transition-duration: 280ms;
+  -webkit-transition-duration: 280ms;
+  -webkit-transform: translate3d(90.9466px, -52.47586px, 0);
+  transform: translate3d(90.9466px, -52.47586px, 0);
+}
+
+.menu-open:checked ~ .menu-item:nth-child(5) {
+  transition-duration: 380ms;
+  -webkit-transition-duration: 380ms;
+  -webkit-transform: translate3d(90.9466px, 52.47586px, 0);
+  transform: translate3d(90.9466px, 52.47586px, 0);
+}
+
+.menu-open:checked ~ .menu-item:nth-child(6) {
+  transition-duration: 480ms;
+  -webkit-transition-duration: 480ms;
+  -webkit-transform: translate3d(0.08361px, 104.99997px, 0);
+  transform: translate3d(0.08361px, 104.99997px, 0);
+}
+
+.menu-open:checked ~ .menu-item:nth-child(7) {
+  transition-duration: 580ms;
+  -webkit-transition-duration: 580ms;
+  -webkit-transform: translate3d(-90.86291px, 52.62064px, 0);
+  transform: translate3d(-90.86291px, 52.62064px, 0);
+}
+
+.menu-open:checked ~ .menu-item:nth-child(8) {
+  transition-duration: 680ms;
+  -webkit-transition-duration: 680ms;
+  -webkit-transform: translate3d(-90.86291px, -52.62064px, 0);
+  transform: translate3d(-90.86291px, -52.62064px, 0);
+}
+
+.blue {
+  background-color: #669AE1;
+  box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.14);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.blue:hover {
+  color: #669AE1;
+  text-shadow: none;
+}
+
+.green {
+  background-color: #70CC72;
+  box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.14);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.green:hover {
+  color: #70CC72;
+  text-shadow: none;
+}
+
+.red {
+  background-color: #FE4365;
+  box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.14);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.red:hover {
+  color: #FE4365;
+  text-shadow: none;
+}
+
+.purple {
+  background-color: #C49CDE;
+  box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.14);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.purple:hover {
+  color: #C49CDE;
+  text-shadow: none;
+}
+
+.orange {
+  background-color: #FC913A;
+  box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.14);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.orange:hover {
+  color: #FC913A;
+  text-shadow: none;
+}
+
+.teal {
+  background-color: #2EC4C6;
+  box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.14);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.teal:hover {
+  color: #2EC4C6;
+  text-shadow: none;
+}
+
+/* ---- Adaptation glue: fit the fab's real buttons/inputs into the circles ---- */
+
+.menu-item{
+  border: none;
   font-family: var(--sans);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--gold);
-  min-height: 1.2em;
+  font-weight: 700;
+  font-size: 2.2rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.menu-item:disabled{
+  opacity: 0.35;
+  filter: grayscale(0.7);
+  cursor: not-allowed;
+  box-shadow: none;
+  pointer-events: none;
 }
 
 @media (max-width: 640px){
   .devotion-toolbar{ justify-content: center; }
-  .font-size-control,
-  .toolbar-icon-group{ flex: 1 1 auto; justify-content: center; }
-  .font-size-slider{ width: 84px; }
-}
-@media (max-width: 560px){
-  .devotion-toolbar-status{ margin: 4px 0 0; flex-basis: 100%; text-align: center; }
-}
-@media (max-width: 420px){
-  .font-size-slider{ width: 64px; }
 }
 
 /* ---------------- Verse of the Day ---------------- */
@@ -581,10 +684,21 @@ body{ background: var(--cloud); }
   text-align: center;
 }
 .prayer-icon{
-  display: block;
-  font-size: 1.8rem;
-  color: var(--gold);
-  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 14px;
+  background: #ffffff;
+  border: 1.5px solid #111111;
+  border-radius: 50%;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+.prayer-icon img{
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
 }
 .prayer-text{
   font-family: var(--serif);

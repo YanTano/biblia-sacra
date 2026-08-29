@@ -51,7 +51,7 @@
   background: var(--gold-soft);
 }
 
-.reader-brand{ text-align: center; line-height: 1.1; }
+.reader-brand{ text-align: left; line-height: 1.1; }
 .reader-brand-name{
   display: block;
   font-family: var(--serif);

@@ -42,7 +42,7 @@
     </nav>
 
     <a class="daily-verse-pill" href="pray.html">
-      Prayer <span aria-hidden="true">&#128591;</span>
+      Prayer <img class="daily-verse-pill-icon" src="assets/icons/pray-cross.png" alt="" aria-hidden="true">
     </a>
   </div>
 </header>
@@ -65,39 +65,40 @@
 
   <div class="devotion-container">
 
-    <!-- ============ Toolbar: user actions (matches bible.html reading-toolbar) ============ -->
+    <!-- ============ Toolbar: user actions — Uiverse.io radial menu by JkHuger ============ -->
     <div class="devotion-toolbar" role="toolbar" aria-label="Devotion actions">
 
-      <div class="font-size-control" role="group" aria-label="Adjust text size">
-        <button class="font-size-btn" id="fontDecreaseBtn" type="button" aria-label="Decrease text size" title="Decrease text size">A&minus;</button>
-        <input class="font-size-slider" id="fontSizeSlider" type="range" min="0" max="4" step="1" value="2"
-               aria-label="Text size" aria-valuetext="Default text size">
-        <button class="font-size-btn" id="fontIncreaseBtn" type="button" aria-label="Increase text size" title="Increase text size">A+</button>
-        <span class="font-size-label" id="fontSizeLabel">Default</span>
-      </div>
+      <div class="radial-menu-wrap">
+        <nav class="menu">
+          <input type="checkbox" class="menu-open" name="menu-open" id="radialMenuToggle">
+          <label class="menu-open-button" for="radialMenuToggle" aria-label="Open devotion actions" title="Actions">
+            <span class="lines line-1"></span>
+            <span class="lines line-2"></span>
+            <span class="lines line-3"></span>
+          </label>
 
-      <div class="toolbar-icon-group">
-        <span class="toolbar-divider" aria-hidden="true"></span>
-
-        <button class="toolbar-icon-btn" id="favoriteBtn" type="button" aria-pressed="false" aria-label="Save this devotion to favorites" title="Save">
-          <span class="toolbar-icon-glyph" aria-hidden="true">&#9825;</span>
-        </button>
-        <button class="toolbar-icon-btn" id="shareBtn" type="button" aria-label="Share this devotion" title="Share">
-          <span class="toolbar-icon-glyph" aria-hidden="true">&#8663;</span>
-        </button>
-
-        <div class="toolbar-more" id="devotionMore">
-          <button class="toolbar-icon-btn" id="moreBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="moreMenu" aria-label="More actions" title="More">
-            <span aria-hidden="true">&#8943;</span>
+          <button type="button" id="shareBtn" class="menu-item blue" aria-label="Share this devotion" title="Share">
+            <span aria-hidden="true">&#8663;</span>
           </button>
-          <div class="toolbar-more-menu" id="moreMenu" role="menu" hidden>
-            <button class="toolbar-more-item" id="copyVerseBtn" type="button" role="menuitem">Copy Verse</button>
-            <button class="toolbar-more-item" id="printBtn" type="button" role="menuitem">Print</button>
-          </div>
-        </div>
+
+          <button type="button" id="copyAllBtn" class="menu-item red" aria-label="Copy the full devotion to clipboard" title="Copy All">
+            <span aria-hidden="true">&#10063;</span>
+          </button>
+
+          <button type="button" id="printBtn" class="menu-item teal" aria-label="Print this devotion" title="Print">
+            <span aria-hidden="true">&#9113;</span>
+          </button>
+
+          <button type="button" id="resetFontBtn" class="menu-item green" aria-label="Reset text size to default" title="Reset text size">
+            <span aria-hidden="true">&#8635;</span>
+          </button>
+
+          <button type="button" id="fontDecreaseBtn" class="menu-item purple" aria-label="Decrease text size" title="Decrease text size">A&minus;</button>
+
+          <button type="button" id="fontIncreaseBtn" class="menu-item orange" aria-label="Increase text size" title="Increase text size">A+</button>
+        </nav>
       </div>
 
-      <p class="devotion-toolbar-status" id="toolbarStatus" role="status" aria-live="polite"></p>
     </div>
 
     <!-- ============ Verse of the Day ============ -->
@@ -142,7 +143,9 @@
 
     <!-- ============ Prayer ============ -->
     <section class="prayer-section" aria-labelledby="prayerHeading">
-      <span class="prayer-icon" aria-hidden="true">&#128591;</span>
+      <span class="prayer-icon" aria-hidden="true">
+        <img src="assets/icons/pray-cross.png" alt="">
+      </span>
       <h2 class="section-eyebrow" id="prayerHeading">Prayer</h2>
       <p class="prayer-text" id="prayerText"></p>
     </section>
