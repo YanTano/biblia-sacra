@@ -211,21 +211,21 @@
 
   var menuToggle = document.getElementById("menuToggle");
   var prayToolbarBar = document.getElementById("prayToolbarBar");
-  var praySidebar = document.getElementById("praySidebar");
-  var sidebarOverlay = document.getElementById("sidebarOverlay");
 
-  var tabLibraryBtn = document.getElementById("tabLibraryBtn");
   var tabJournalBtn = document.getElementById("tabJournalBtn");
+  var journalToggleLabel = document.getElementById("journalToggleLabel");
   var libraryView = document.getElementById("libraryView");
   var journalView = document.getElementById("journalView");
 
+  var featuredCard = document.getElementById("featuredCard");
   var categoryListView = document.getElementById("categoryListView");
   var categoryDetailView = document.getElementById("categoryDetailView");
-  var detailBackBtn = document.getElementById("detailBackBtn");
+  var detailCopyBtn = document.getElementById("detailCopyBtn");
   var detailCloseBtn = document.getElementById("detailCloseBtn");
   var detailTitle = document.getElementById("detailTitle");
   var detailSubtitle = document.getElementById("detailSubtitle");
   var detailPrayers = document.getElementById("detailPrayers");
+  var categoryDetailBackdrop = document.getElementById("categoryDetailBackdrop");
 
   var paySectionSelect = document.getElementById("paySectionSelect");
   var prayerFullscreenToggle = document.getElementById("prayerFullscreenToggle");
@@ -277,20 +277,6 @@
   }
 
   /* ==========================================================
-     Mobile sidebar drawer
-     ========================================================== */
-
-  function openSidebar() {
-    praySidebar.classList.add("is-open");
-    sidebarOverlay.classList.add("is-open");
-  }
-  function closeSidebar() {
-    praySidebar.classList.remove("is-open");
-    sidebarOverlay.classList.remove("is-open");
-  }
-  sidebarOverlay.addEventListener("click", closeSidebar);
-
-  /* ==========================================================
      Menu button — toggles the text-size toolbar bar, same
      behavior as the Bible reader's Menu button.
      ========================================================== */
@@ -315,23 +301,24 @@
   }
 
   /* ==========================================================
-     Tabs (Prayer Library / My Journal)
+     Tabs (Prayer Library / My Journal) — a single header button now
+     toggles between the two, swapping its own label/icon state.
      ========================================================== */
 
   function activateTab(which) {
     var isLibrary = which === "library";
-    tabLibraryBtn.classList.toggle("is-active", isLibrary);
     tabJournalBtn.classList.toggle("is-active", !isLibrary);
-    tabLibraryBtn.setAttribute("aria-selected", isLibrary ? "true" : "false");
-    tabJournalBtn.setAttribute("aria-selected", !isLibrary ? "true" : "false");
+    if (journalToggleLabel) { journalToggleLabel.textContent = isLibrary ? "My Journal" : "Prayer Library"; }
+    tabJournalBtn.setAttribute("aria-label", isLibrary ? "Open my prayer journal" : "Back to prayer library");
     libraryView.classList.toggle("is-hidden", !isLibrary);
     journalView.classList.toggle("is-hidden", isLibrary);
     if (paySectionSelect) { paySectionSelect.value = isLibrary ? "library" : "journal"; }
-    closeSidebar();
   }
 
-  tabLibraryBtn.addEventListener("click", function () { activateTab("library"); });
-  tabJournalBtn.addEventListener("click", function () { activateTab("journal"); });
+  tabJournalBtn.addEventListener("click", function () {
+    var goingToJournal = !tabJournalBtn.classList.contains("is-active");
+    activateTab(goingToJournal ? "journal" : "library");
+  });
 
   /* Mobile-only dropdown — lists every category-row title (built in
      renderCategoryList below) so a category can be jumped to directly,
@@ -366,6 +353,47 @@
      Prayer library — category list + detail
      ========================================================== */
 
+
+  /* ==========================================================
+     Crucifix visual — used on the featured card in place of the
+     old 3D bead-ring rosary graphic.
+     ========================================================== */
+
+  function buildRosaryVisual() {
+    return '<img class="rosary-crucifix-img" src="assets/pray/crucifix.png" alt="Crucifix" loading="lazy">';
+  }
+
+  function renderFeaturedCard() {
+    if (!featuredCard) { return; }
+    var group = LIBRARY[0];
+    var isRosary = group.icon === "rosary";
+    featuredCard.innerHTML =
+      '<div class="featured-card-icon' + (isRosary ? " featured-card-icon--rosary" : "") + '">' +
+        (isRosary ? buildRosaryVisual() : (ICONS[group.icon] || "")) +
+      "</div>" +
+      '<div class="featured-card-body">' +
+        '<p class="featured-card-eyebrow">Featured Prayer</p>' +
+        '<h2 class="featured-card-title">' + escapeHtml(group.group) + "</h2>" +
+        '<p class="featured-card-desc">' + escapeHtml(group.desc) + "</p>" +
+        '<span class="featured-card-count">' + group.prayers.length + " Prayers</span>" +
+      "</div>" +
+      '<button class="featured-card-btn" type="button" id="featuredCardBtn">' +
+        (isRosary ? "Pray the Rosary &#8594;" : "Begin Prayer &#8594;") +
+      "</button>";
+
+    var btn = document.getElementById("featuredCardBtn");
+    if (btn) {
+      btn.addEventListener("click", function () {
+        if (isRosary) {
+          window.location.href = "https://yantano.github.io/virtual-rosary/";
+          return;
+        }
+        openCategoryDetail(group);
+        if (paySectionSelect) { paySectionSelect.value = "cat-0"; }
+      });
+    }
+  }
+
   function renderCategoryList() {
     var html = "";
     LIBRARY.forEach(function (group, idx) {
@@ -387,9 +415,13 @@
     });
 
     renderCategorySelect();
+    renderFeaturedCard();
   }
 
+  var currentDetailGroup = null;
+
   function openCategoryDetail(group) {
+    currentDetailGroup = group;
     detailTitle.textContent = group.group;
     detailSubtitle.textContent = group.desc;
 
@@ -401,17 +433,70 @@
 
     categoryListView.classList.add("is-hidden");
     categoryDetailView.classList.remove("is-hidden");
-    categoryDetailView.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    // New content opens centered on screen (a dimmed backdrop behind
+    // it, page scroll locked) rather than just appearing inline.
+    if (categoryDetailBackdrop) { categoryDetailBackdrop.hidden = false; }
+    document.body.style.overflow = "hidden";
+    var scrollEl = categoryDetailView.querySelector(".category-detail-scroll");
+    if (scrollEl) { scrollEl.scrollTop = 0; }
   }
 
   function closeCategoryDetail() {
     categoryDetailView.classList.add("is-hidden");
     categoryListView.classList.remove("is-hidden");
+    if (categoryDetailBackdrop) { categoryDetailBackdrop.hidden = true; }
+    document.body.style.overflow = "";
     if (paySectionSelect) { paySectionSelect.value = "library"; }
   }
 
-  detailBackBtn.addEventListener("click", closeCategoryDetail);
+  if (detailCopyBtn) {
+    detailCopyBtn.addEventListener("click", function () {
+      if (!currentDetailGroup) { return; }
+      var text = currentDetailGroup.group + "\n" + currentDetailGroup.desc + "\n\n";
+      currentDetailGroup.prayers.forEach(function (p) {
+        text += p.title + "\n" + p.text + "\n\n";
+      });
+      text = text.trim();
+
+      function showCopied() {
+        detailCopyBtn.classList.add("is-copied");
+        window.clearTimeout(detailCopyBtn._copyTimer);
+        detailCopyBtn._copyTimer = window.setTimeout(function () {
+          detailCopyBtn.classList.remove("is-copied");
+        }, 1600);
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(showCopied, function () {
+          fallbackCopy(text);
+          showCopied();
+        });
+      } else {
+        fallbackCopy(text);
+        showCopied();
+      }
+    });
+  }
+
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch (err) { /* no-op */ }
+    document.body.removeChild(ta);
+  }
+
   if (detailCloseBtn) { detailCloseBtn.addEventListener("click", closeCategoryDetail); }
+  if (categoryDetailBackdrop) { categoryDetailBackdrop.addEventListener("click", closeCategoryDetail); }
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && categoryDetailView && !categoryDetailView.classList.contains("is-hidden")) {
+      closeCategoryDetail();
+    }
+  });
 
   /* ==========================================================
      Intro heart toggle (save this verse)
@@ -422,6 +507,86 @@
       var active = introHeart.classList.toggle("is-active");
       introHeart.setAttribute("aria-pressed", active ? "true" : "false");
     });
+  }
+
+  /* ==========================================================
+     Intro quote carousel — auto-rotates through a few verses and
+     devotional quotes inside the intro card (formerly the sidebar's
+     standalone quote box).
+     ========================================================== */
+
+  var INTRO_QUOTES = [
+    {
+      text: "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God.",
+      cite: "Philippians 4:6"
+    },
+    {
+      text: "Let prayer be your first choice, not your last resort.",
+      cite: "St. Augustine"
+    },
+    {
+      text: "Pray without ceasing.",
+      cite: "1 Thessalonians 5:17"
+    },
+    {
+      text: "The one who prays certainly does good, but the one who suffers and offers his sufferings to God can do even more.",
+      cite: "St. Padre Pio"
+    }
+  ];
+
+  var introQuoteTrack = document.getElementById("introQuoteTrack");
+  var introQuoteDots = document.getElementById("introQuoteDots");
+  var introQuoteIndex = 0;
+  var introQuoteTimer = null;
+  var INTRO_QUOTE_INTERVAL = 7000;
+
+  function renderIntroQuotes() {
+    if (!introQuoteTrack) { return; }
+    var slidesHtml = "";
+    var dotsHtml = "";
+    INTRO_QUOTES.forEach(function (q, i) {
+      slidesHtml += '<div class="intro-quote-slide' + (i === 0 ? " is-active" : "") + '" data-index="' + i + '">' +
+        '<p class="pray-intro">' + escapeHtml(q.text) + "</p>" +
+        '<cite class="pray-intro-cite">' + escapeHtml(q.cite) + "</cite>" +
+        "</div>";
+      dotsHtml += '<button class="intro-quote-dot' + (i === 0 ? " is-active" : "") + '" type="button" data-index="' + i + '" aria-label="Show quote ' + (i + 1) + '"></button>';
+    });
+    introQuoteTrack.innerHTML = slidesHtml;
+    if (introQuoteDots) { introQuoteDots.innerHTML = dotsHtml; }
+
+    if (introQuoteDots) {
+      introQuoteDots.querySelectorAll(".intro-quote-dot").forEach(function (dot) {
+        dot.addEventListener("click", function () {
+          showIntroQuote(parseInt(dot.getAttribute("data-index"), 10));
+          restartIntroQuoteTimer();
+        });
+      });
+    }
+  }
+
+  function showIntroQuote(index) {
+    if (!introQuoteTrack) { return; }
+    introQuoteIndex = (index + INTRO_QUOTES.length) % INTRO_QUOTES.length;
+    introQuoteTrack.querySelectorAll(".intro-quote-slide").forEach(function (slide) {
+      slide.classList.toggle("is-active", parseInt(slide.getAttribute("data-index"), 10) === introQuoteIndex);
+    });
+    if (introQuoteDots) {
+      introQuoteDots.querySelectorAll(".intro-quote-dot").forEach(function (dot) {
+        dot.classList.toggle("is-active", parseInt(dot.getAttribute("data-index"), 10) === introQuoteIndex);
+      });
+    }
+  }
+
+  function restartIntroQuoteTimer() {
+    clearInterval(introQuoteTimer);
+    introQuoteTimer = setInterval(function () {
+      showIntroQuote(introQuoteIndex + 1);
+    }, INTRO_QUOTE_INTERVAL);
+  }
+
+  if (introQuoteTrack) {
+    renderIntroQuotes();
+    restartIntroQuoteTimer();
   }
 
   /* ==========================================================

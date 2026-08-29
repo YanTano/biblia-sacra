@@ -117,6 +117,13 @@ body.pray-body{
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
+.menu-toggle-icon--aa{
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
 .menu-toggle[aria-expanded="true"],
 .fullscreen-toggle[aria-pressed="true"]{ background: var(--gold); color: #123754; }
 .fullscreen-toggle span.fullscreen-label-short{ display: none; } /* mobile-only short label, see below */
@@ -325,16 +332,42 @@ body.pray-body{
   }
   .reader-brand-tag{ font-size: 0.52rem; letter-spacing: 0.14em; margin-top: 2px; }
 
-  /* Row 1, right — Search / Menu / Fullscreen (icon-only pills) */
-  .pray-header-actions{ order: 2; gap: 6px; }
+  /* Row 1, right — Search / Menu / Fullscreen as round icon buttons,
+     matching the Back button so all four header controls share one
+     consistent circular style on mobile. */
+  .pray-header-actions{ order: 2; gap: 8px; }
   .fullscreen-toggle{ display: inline-flex; }
   .search-toggle,
   .menu-toggle,
-  .fullscreen-toggle{ padding: 8px 10px; font-size: 0.72rem; gap: 0; }
+  .fullscreen-toggle{
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    gap: 0;
+    border-radius: 50%;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .search-toggle span[aria-hidden="true"],
+  .menu-toggle span.menu-toggle-icon,
+  .fullscreen-toggle span.fullscreen-icon{
+    font-size: 1rem;
+    line-height: 1;
+  }
   .search-toggle span.search-label,
   .menu-toggle span.menu-label,
   .fullscreen-toggle span.fullscreen-label,
   .fullscreen-toggle span.fullscreen-label-short{ display: none; }
+
+  /* Back button becomes a matching round icon button too (arrow only) */
+  .back-link{
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+    gap: 0;
+  }
 
   /* Row 2 — Prayer section dropdown, full width */
   .pray-section-select{
@@ -345,149 +378,57 @@ body.pray-body{
   }
 }
 
-@media (max-width: 400px){
-  .reader-brand-tag{ display: none; }
-}
-
 /* Fullscreen / distraction-free toggle — mobile only. Hides the intro
    quote card and the section dropdown to give the prayer list more
    room; the header itself (Back/brand/Search/Menu/Fullscreen) stays
    so the person can always get back out. */
 @media (max-width: 640px){
   html[data-pray-immersive="true"] .intro-card,
+  html[data-pray-immersive="true"] .featured-card,
+  html[data-pray-immersive="true"] .section-heading,
   html[data-pray-immersive="true"] .pray-section-select{
     display: none;
   }
 }
 
-/* ---------------- Shell (sidebar + content) ---------------- */
+/* ---------------- Shell (single column — sidebar removed) ---------------- */
 
 .pray-shell{
   position: relative;
-  z-index: 1;
-  max-width: 1400px;
+  max-width: 1080px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 28px;
   padding: 28px clamp(16px, 3vw, 28px) 80px;
-  align-items: start;
 }
 
-.pray-sidebar{
-  position: sticky;
-  top: 92px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  background: linear-gradient(165deg, #123C5E 0%, #0E3252 100%);
-  border-radius: var(--radius-lg);
-  padding: 18px;
-  box-shadow: var(--shadow-soft);
+@media (min-width: 1440px){
+  .pray-shell{ max-width: 1200px; padding-top: 40px; }
 }
 
-.sidebar-nav{ display: flex; flex-direction: column; gap: 6px; }
+/* ---------------- Header: "My Journal" toggle ---------------- */
 
-.sidebar-nav-item{
-  display: flex;
+.journal-toggle{
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   font-family: var(--sans);
+  font-size: 0.86rem;
   font-weight: 600;
-  font-size: 0.94rem;
-  color: rgba(255,253,248,0.78);
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-md);
-  padding: 13px 16px;
+  color: var(--cloud);
+  background: rgba(255, 253, 248, 0.12);
+  border: 1px solid rgba(223, 175, 69, 0.4);
+  padding: 10px 18px;
+  border-radius: 999px;
   cursor: pointer;
-  text-align: left;
-  transition: background 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
 }
-.sidebar-nav-item:hover{ background: rgba(255,253,248,0.08); }
-.sidebar-nav-item.is-active{
-  background: var(--gold);
-  color: #123754;
-}
-.sidebar-nav-icon{
-  display: inline-flex;
-  width: 22px;
-  height: 22px;
-  color: var(--gold);
-  flex-shrink: 0;
-}
-.sidebar-nav-item.is-active .sidebar-nav-icon{ color: #123754; }
-.sidebar-nav-icon svg{ width: 100%; height: 100%; }
+.journal-toggle:hover{ background: rgba(255,253,248,0.2); }
+.journal-toggle.is-active{ background: var(--gold); color: #123754; }
+.journal-toggle-icon{ display: inline-flex; width: 18px; height: 18px; }
+.journal-toggle-icon svg{ width: 100%; height: 100%; }
 
-.sidebar-quote{
-  background: var(--cloud);
-  border: 1px solid rgba(223,175,69,0.3);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 12px 30px rgba(9,26,41,0.28);
-  padding: 22px 20px;
-}
-.sidebar-quote-icon{
-  display: inline-flex;
-  width: 22px;
-  height: 22px;
-  color: var(--gold);
-  margin-bottom: 12px;
-}
-.sidebar-quote-icon svg{ width: 100%; height: 100%; }
-.sidebar-quote-text{
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 1.05rem;
-  line-height: 1.5;
-  color: var(--deep-blue);
-  margin: 0 0 14px;
-}
-.sidebar-quote-divider{
-  display: block;
-  width: 36px;
-  height: 2px;
-  background: var(--gold);
-  border-radius: 2px;
-  margin-bottom: 10px;
-}
-.sidebar-quote cite{
-  font-family: var(--sans);
-  font-size: 0.82rem;
-  font-style: normal;
-  color: var(--text-soft);
-}
-
-.sidebar-overlay{ display: none; }
-
-@media (max-width: 900px){
-  .pray-shell{ grid-template-columns: 1fr; }
-  .pray-sidebar{
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: min(300px, 82vw);
-    background: linear-gradient(165deg, #123C5E 0%, #0E3252 100%);
-    border-radius: 0;
-    padding: 90px 20px 24px;
-    z-index: 120;
-    box-shadow: 12px 0 40px rgba(9,26,41,0.35);
-    transform: translateX(-100%);
-    transition: transform 0.28s ease;
-    overflow-y: auto;
-  }
-  .pray-sidebar.is-open{ transform: translateX(0); }
-  .sidebar-overlay{
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(23,74,115,0.35);
-    z-index: 110;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease;
-  }
-  .sidebar-overlay.is-open{ opacity: 1; pointer-events: auto; }
+@media (max-width: 640px){
+  .journal-toggle{ padding: 8px 10px; font-size: 0.72rem; gap: 0; width: 38px; height: 38px; border-radius: 50%; justify-content: center; }
+  .journal-toggle-label{ display: none; }
 }
 
 /* ---------------- Content views ---------------- */
@@ -504,6 +445,7 @@ body.pray-body{
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
   padding: 34px clamp(20px, 6vw, 56px) 26px;
+  margin-top: 28px;
 }
 .intro-quote-mark{
   display: block;
@@ -513,6 +455,42 @@ body.pray-body{
   line-height: 1;
   margin-bottom: 6px;
 }
+.intro-heart{
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: none;
+  color: var(--text-soft);
+  cursor: pointer;
+}
+.intro-heart svg{ width: 22px; height: 22px; }
+.intro-heart:hover{ color: var(--gold); }
+.intro-heart.is-active{ color: #C0453F; }
+.intro-heart.is-active svg{ fill: #C0453F; }
+
+/* ---------------- Intro quote carousel (auto-rotating) ----------------
+   Formerly the sidebar's quote box — now lives inside the intro card and
+   cycles through several verses/quotes automatically. */
+
+.intro-quote-track{ position: relative; min-height: 8.5em; }
+
+.intro-quote-slide{
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s ease;
+}
+.intro-quote-slide.is-active{
+  position: relative;
+  opacity: 1;
+  visibility: visible;
+}
+
 .pray-intro{
   font-family: var(--serif);
   font-style: italic;
@@ -542,30 +520,160 @@ body.pray-body{
   margin: 0 10px;
 }
 
-.intro-heart{
-  margin-top: 16px;
-  display: inline-flex;
+.intro-quote-dots{
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  background: none;
+  gap: 7px;
+  margin-top: 18px;
+}
+.intro-quote-dot{
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(223,175,69,0.3);
   border: none;
-  color: var(--text-soft);
+  padding: 0;
   cursor: pointer;
 }
-.intro-heart svg{ width: 22px; height: 22px; }
-.intro-heart:hover{ color: var(--gold); }
-.intro-heart.is-active{ color: #C0453F; }
-.intro-heart.is-active svg{ fill: #C0453F; }
+.intro-quote-dot.is-active{ background: var(--gold); }
+
+/* ---------------- Featured prayer (spotlight card) ---------------- */
+
+.featured-card{
+  margin-top: 0;
+  display: grid;
+  grid-template-columns: 220px 1fr auto;
+  align-items: center;
+  gap: 22px;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 20px;
+}
+.featured-card-icon{
+  width: 100%;
+  aspect-ratio: 1.4 / 1;
+  border-radius: var(--radius-md);
+  background: linear-gradient(150deg, #123C5E 0%, #0E3252 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+}
+.featured-card-icon svg{ width: 48px; height: 48px; }
+
+/* ---- Featured card: crucifix visual ---- */
+.featured-card-icon--rosary{
+  aspect-ratio: auto;
+  min-height: 260px;
+  overflow: visible;
+  padding: 18px 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(120% 100% at 50% 12%, #1a4266 0%, #0f2f4c 55%, #0a2236 100%);
+}
+.rosary-crucifix-img{
+  width: auto;
+  height: 220px;
+  max-width: 80%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.45));
+}
+@media (max-width: 780px){
+  .featured-card-icon--rosary{ min-height: 300px; max-width: 260px; margin: 0 auto; }
+  .rosary-crucifix-img{ height: 190px; }
+}
+.featured-card-body{ min-width: 0; }
+.featured-card-eyebrow{
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 6px;
+}
+.featured-card-title{
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--deep-blue);
+  margin: 0 0 8px;
+}
+.featured-card-desc{
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+  margin: 0 0 10px;
+  max-width: 46ch;
+}
+.featured-card-count{
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+.featured-card-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--cloud);
+  background: linear-gradient(120deg, #0E3252 0%, #1B4E76 100%);
+  border: none;
+  border-radius: 999px;
+  padding: 13px 22px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.featured-card-btn:hover{ background: var(--gold); color: #123754; }
+
+@media (max-width: 780px){
+  .featured-card{ grid-template-columns: 1fr; text-align: center; }
+  .featured-card-icon{ max-width: 220px; margin: 0 auto; }
+  .featured-card-desc{ margin-left: auto; margin-right: auto; }
+  .featured-card-btn{ justify-content: center; }
+}
+
+/* ---------------- Section heading ("All Prayers") ---------------- */
+
+.section-heading{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 30px 0 16px;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.section-heading::before, .section-heading::after{
+  content: "";
+  flex: 1;
+  max-width: 120px;
+  height: 1px;
+  background: rgba(223,175,69,0.4);
+}
 
 /* ---------------- Category list rows ---------------- */
 
 .category-list{
   margin-top: 18px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 12px;
+}
+
+@media (min-width: 900px){
+  .category-list{ grid-template-columns: 1fr 1fr; gap: 16px 20px; }
 }
 
 .category-row{
@@ -653,34 +761,77 @@ body.pray-body{
 
 /* ---------------- Category detail ---------------- */
 
+/* Desktop: opening a prayer displays it as a centered overlay — new
+   content appears in the middle of the screen (over a dimmed
+   backdrop) instead of pushed inline below the category list. */
+.category-detail-backdrop{
+  position: fixed;
+  inset: 0;
+  z-index: 209;
+  background: rgba(9,26,41,0.55);
+}
+.category-detail-backdrop[hidden]{ display: none; }
+
 .category-detail{
-  position: relative;
+  position: fixed;
+  z-index: 210;
+  inset: 0;
+  margin: auto;
+  width: min(760px, calc(100% - 48px));
+  height: min(82vh, 860px);
   background: var(--white);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 30px 70px rgba(9,26,41,0.45);
+  display: flex;
+  flex-direction: column;
 }
 .category-detail.is-hidden{ display: none; }
+.category-detail:not(.is-hidden){ animation: detailPopIn 0.28s ease; }
+@keyframes detailPopIn{
+  from{ opacity: 0; transform: translateY(14px) scale(0.97); }
+  to{ opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce){
+  .category-detail:not(.is-hidden){ animation: none; }
+}
 .category-detail-scroll{
   padding: clamp(22px, 4vw, 36px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
 }
 
-.detail-back{
+/* Copy button — sits directly to the left of the close [x] button,
+   same round icon-button treatment, at every breakpoint. Clicking it
+   copies the open prayer's text and briefly swaps the icon for a
+   checkmark to confirm. */
+.detail-copy{
   display: inline-flex;
+  position: absolute;
+  top: 18px;
+  right: 62px;
+  z-index: 2;
   align-items: center;
-  gap: 8px;
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: 0.86rem;
-  color: var(--deep-blue);
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
   background: var(--cloud);
-  border: 1px solid rgba(223,175,69,0.35);
-  border-radius: 999px;
-  padding: 10px 18px;
+  color: var(--deep-blue);
   cursor: pointer;
-  margin-bottom: 20px;
-  box-shadow: 0 6px 16px rgba(23,74,115,0.06);
 }
-.detail-back:hover{ background: var(--gold-soft); }
+.detail-copy:hover{ background: rgba(223,175,69,0.22); }
+.detail-copy-icon{ width: 17px; height: 17px; }
+.detail-copy-check{
+  display: none;
+  font-size: 1.05rem;
+  line-height: 1;
+  color: #1c7a4b;
+}
+.detail-copy.is-copied .detail-copy-icon{ display: none; }
+.detail-copy.is-copied .detail-copy-check{ display: inline-flex; }
 
 /* Close (X) button — sits in the upper right of the selected prayer at
    every breakpoint (desktop included). On mobile, the category detail
@@ -725,14 +876,17 @@ body.pray-body{
 /* On mobile, opening a category should show *only* that prayer: the
    detail view becomes a full-screen overlay above everything else
    (header dropdown, intro card, category list), closed via the [x]
-   in the upper right instead of the inline "Back" button. */
+   in the upper right. */
 @media (max-width: 640px){
   .category-detail:not(.is-hidden){
     position: fixed;
     inset: 0;
     z-index: 210;
     margin: 0;
+    width: auto;
+    height: auto;
     border-radius: 0;
+    animation: none;
   }
   .category-detail-scroll{
     height: 100%;
@@ -740,7 +894,14 @@ body.pray-body{
     -webkit-overflow-scrolling: touch;
     padding: 60px 18px 40px;
   }
-  .detail-back{ display: none; }
+  .detail-copy{
+    display: inline-flex;
+    position: fixed;
+    top: 14px;
+    right: 58px;
+    z-index: 211;
+    box-shadow: 0 6px 16px rgba(23,74,115,0.18);
+  }
   .detail-close{
     display: inline-flex;
     position: fixed;
@@ -1032,3 +1193,4 @@ body.pray-body{
   line-height: 1.5;
   margin-top: 3px;
 }
+

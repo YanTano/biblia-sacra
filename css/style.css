@@ -236,11 +236,11 @@ a{ color: inherit; text-decoration: none; }
 }
 
 .hero-bg{
-  background-image: url("../assets/heaven-background.webp");
+  background-image: url("../assets/backgrounds/heaven-background.webp");
 }
 
 .hero-fg{
-  background-image: url("../assets/jesus-angels.webp");
+  background-image: url("../assets/backgrounds/jesus-angels.webp");
   transform: translate3d(var(--fg-x), var(--fg-y), 0);
 }
 
